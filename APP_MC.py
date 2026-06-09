@@ -11,7 +11,6 @@ import matplotlib.gridspec as gridspec
 import pandas as pd
  
 from MODELO_MANDER import Ec_concreto, eco as ECO_REF
-from MODELO_MANDER import (funcion_mander, curva_mander, curva_no_confinada, Ec_concreto)
 from MOMENTO_CURVATURA import (calcular_momento_curvatura, puntos_clave)
 st.set_page_config(page_title="Momento – Curvatura",layout="wide",initial_sidebar_state="expanded",)
  
