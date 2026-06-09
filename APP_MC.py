@@ -75,8 +75,8 @@ AREAS_VARILLA_T = AREAS_VARILLA
 b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
-RHO_MIN = 0.01
-RHO_MAX = 0.025
+
+
 # ────────────────────────────────────────────────────────────────────
 #                                 CIRCULAR
 # ────────────────────────────────────────────────────────────────────
@@ -106,7 +106,8 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     tipo_mander  = tipo_col
 
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
-    
+    RHO_MIN = 0.01
+    RHO_MAX = 0.025
     if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
 
@@ -169,6 +170,8 @@ else:    # Rectangular
     Ag   = b * h_sec
     tipo_seccion = "rectangular"
     tipo_mander  = "Rectangular con estribos"
+    RHO_MIN = 0.01
+    RHO_MAX = 0.025    
     
     if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
