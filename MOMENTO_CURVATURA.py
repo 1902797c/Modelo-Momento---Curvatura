@@ -333,8 +333,8 @@ def calcular_momento_curvatura(
  
        # try:
             # kd_sol = brentq(desequilibrio, kd_a, kd_b, xtol=1e-7, maxiter=100)
-        except ValueError:
-            continue
+        #except ValueError:
+           #continue
  
         phi_sol = ecm / kd_sol
         _, M_sol = fuerzas_internas(
