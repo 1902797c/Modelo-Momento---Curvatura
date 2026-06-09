@@ -336,18 +336,15 @@ if calcular:
                          use_container_width=True, height=250)
  
     # ── DESCARGA ─────────────────────────────────────────────────────
-    df_export = pd.DataFrame({
-        "phi_nivel1_rad_cm": phi1,
-        "M_nivel1_kgcm":     M1,
-        "phi_nivel2_rad_cm": phi2,
-        "M_nivel2_kgcm":     M2,
-    })
+nmax = max(len(phi1), len(phi2))
+
+df_export = pd.DataFrame({
+    "phi_nivel1_rad_cm": pd.Series(phi1),
+    "M_nivel1_kgcm": pd.Series(M1),
+    "phi_nivel2_rad_cm": pd.Series(phi2),
+    "M_nivel2_kgcm": pd.Series(M2)})
  
-    st.download_button(
-        "📥  Descargar resultados (CSV)",
-        df_export.to_csv(index=False),
-        file_name="curva_M_phi.csv",
-    )
+    st.download_button("📥  Descargar resultados (CSV)", df_export.to_csv(index=False), file_name="curva_MC.csv")
  
 else:
     st.info("Configura los parámetros en el panel izquierdo y presiona **▶ Calcular M–φ**.")
