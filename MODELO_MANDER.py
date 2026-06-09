@@ -115,17 +115,17 @@ def curva_no_confinada(eps, fco, eco, Ec):
 #			  Selección de ke
 # ----------------------------------------------------------------
 
-def _calcular_fl_ke(tipo, rho_s, fyh, s, ds, b, h, c, Asx, Asy, wi, s_prima):
+def _calcular_fl_ke(tipo_col, rho_s, fyh, s, ds, b, h, c, Asx, Asy, wi, s_prima):
  
-    if tipo == "Circular con espiral":
+    if tipo_col == "Circular con espiral":
         ke = ke_estribos_espirales(s, ds)
         fl = ke * presion_confinamiento_nominal(rho_s, fyh)
 
-    elif tipo == "Circular con estribos circulares":
+    elif tipo_col == "Circular con estribos circulares":
         ke = ke_estribos_circulares(s, ds)
         fl = ke * presion_confinamiento_nominal(rho_s, fyh)
 
-    elif tipo == "Rectangular con estribos":
+    elif tipo_col == "Rectangular con estribos":
         bc = b - 2 * c
         dc = h - 2 * c
 
