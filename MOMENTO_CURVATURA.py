@@ -94,7 +94,7 @@ def discretizar_rectangular(b: float, h: float, c: float,
             "ancho_noconf": ancho_noconf,})
     return fibras
  
- def discretizar_circular(D: float, c: float, n_fibras: int = 200):
+ def discretizar_circular(D:float,c:float,n_fibras:int = 200):
     R  = D / 2.0
     Rc = R - c          # radio del núcleo confinado
     dy = D / n_fibras
