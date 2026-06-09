@@ -75,7 +75,8 @@ AREAS_VARILLA_T = AREAS_VARILLA
 b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
-
+RHO_MIN = 0.01
+RHO_MAX = 0.025
 # ────────────────────────────────────────────────────────────────────
 #                                 CIRCULAR
 # ────────────────────────────────────────────────────────────────────
@@ -93,7 +94,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
         ramas = st.sidebar.number_input("Número de ramas", value=2, min_value=1, step=1)
         Ash   = ramas * Ash_barra
  
-    db_t = np.sqrt(4 * Ash_unit / np.pi)
+    db_t = np.sqrt(4 * Ash_barra / np.pi)
     ds   = D - 2 * c - db_t
     rho_s = (4.0 * Ash) / (ds * s)
     
@@ -109,7 +110,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
 
-        if tipo == "Circular con espiral":
+        if tipo_col == "Circular con espiral":
             st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Reducir espaciamiento *s*")
             st.sidebar.write("- Usar varilla de mayor diámetro")
@@ -123,7 +124,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     elif rho_s > RHO_MAX:
         st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
 
-        if tipo == "Circular con espiral":
+        if tipo_col == "Circular con espiral":
             st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Aumentar espaciamiento *s*")
             st.sidebar.write("- Usar varilla de menor diámetro")
