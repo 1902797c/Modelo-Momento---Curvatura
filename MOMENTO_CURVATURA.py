@@ -122,8 +122,7 @@ def discretizar_circular(D:float,c:float,n_fibras:int = 200):
             "y":            y_centro,
             "dy":           dy,
             "ancho_conf":   b_nucleo,
-            "ancho_noconf": ancho_noconf,
-        })
+            "ancho_noconf": ancho_noconf})
     return fibras
  
  
@@ -172,7 +171,7 @@ def generar_barras_circular(D: float, c: float, num_barras: int, As_barra: float
         # y_local = -R_barras·cos(θ)  →  +R desplazamiento hasta y=0 en cima
         y = D / 2.0 - R_barras * np.cos(theta)
         barras.append((y, As_barra))
-    return barras   # [(y_cm, As_cm²), ...]
+    return barras   
  
  
 # ────────────────────────────────────────────────────────────────────
