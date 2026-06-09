@@ -92,7 +92,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
         Ash = Ash_barra
     else:
         ramas = st.sidebar.number_input("Número de ramas", value=2, min_value=1, step=1)
-        Ash   = ramas * Ash_unit
+        Ash   = ramas * Ash_barra
  
     db_t = np.sqrt(4 * Ash_barra / np.pi)
     ds   = D - 2 * c - db_t
