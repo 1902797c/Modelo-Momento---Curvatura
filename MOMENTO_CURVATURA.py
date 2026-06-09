@@ -4,7 +4,7 @@
 # ====================================================================
  
 import numpy as np
-#from scipy.optimize import brentq
+from scipy.optimize import brentq
 from MODELO_MANDER import (funcion_mander, Ec_concreto, eco as ECO_REF)
  
 # ────────────────────────────────────────────────────────────────────
@@ -328,13 +328,13 @@ def calcular_momento_curvatura(
                 break
  
         if kd_a is None:
-            # Sin cruce para este εcm — omitir (continue, no break)
+     
             continue
  
-       # try:
-            # kd_sol = brentq(desequilibrio, kd_a, kd_b, xtol=1e-7, maxiter=100)
-        #except ValueError:
-           #continue
+        try:
+             kd_sol = brentq(desequilibrio,kd_a, kd_b, xtol=1e-7, maxiter=100)
+        except ValueError:
+            continue
  
         phi_sol = ecm / kd_sol
         _, M_sol = fuerzas_internas(
