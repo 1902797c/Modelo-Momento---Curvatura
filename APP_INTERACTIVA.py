@@ -49,17 +49,36 @@ strain_rate = st.sidebar.number_input(
 # ─────────────────────────────────────────────────────────────────
 st.sidebar.header("Geometría y Confinamiento")
 
+
+# ACERO LONGITUDINAL
+
+st.sidebar.header("Acero longitudinal")
 AREAS_VARILLA = {
-    "#3": 0.71, "#4": 1.27, "#5": 1.99, "#6": 2.87,
-    "#8": 5.07, "#10": 7.94, "#12": 11.40}
+    "#3": 0.71,
+    "#4": 1.27,
+    "#5": 1.99,
+    "#6": 2.87,
+    "#8": 5.07,
+    "#10": 7.94,
+    "#12": 11.40}
+
+Es_long = st.sidebar.number_input("Es longitudinal (kg/cm²)", value=2000000.0)
+
+varilla_long = st.sidebar.selectbox("Varilla longitudinal", list(AREAS_VARILLA_LONG.keys()))
+
+num_barras_long = st.sidebar.number_input("Número de barras longitudinales", min_value=4, value=8,step=1)
+ 
+As_barra_long = AREAS_VARILLA[varilla_long]
+As_total_long = num_barras_long * As_barra_long
+
 
 tipo = st.sidebar.selectbox(
     "Tipo de columna",
     ["Selecciona una opción",
      "Circular con espiral",
      "Circular con estribos circulares",
-     "Rectangular con estribos"]
-)
+     "Rectangular con estribos"])
+
 # Inicialización para evitar NameError
 rho_s = s = ds = None
 b = h = c = Asx = Asy = wi = s_prima = None
@@ -89,8 +108,18 @@ if tipo in ["Circular con espiral", "Circular con estribos circulares"]:
 # Diámetro del núcleo confinado (Mander)
     ds = D - 2*c - db
 
-# Mostrar al usuario
+    # =========================
+    # CUANTÍA LONGITUSINAL 
+    # =========================
+    Ag = np.pi * D**2 / 4
+    rho_g = As_total_long / Ag
+
+    st.sidebar.write(f"As longitudinal = {As_total_long:.2f} cm²")
+
+    st.sidebar.write(f"ρg = {rho_g*100:.2f}%")
+
     st.sidebar.caption(f"Diámetro núcleo ds = {ds:.2f} cm")
+    
     # =========================
     # CUANTÍA ρs (CIRCULAR)
     # =========================
@@ -156,6 +185,16 @@ if tipo == "Rectangular con estribos":
     bc = b - 2.0 * c
     dc = h - 2.0 * c
     ds = min(bc, dc)
+    
+    # =========================
+    # CUANTÍA LONGITUDINAL 
+    # =========================
+    
+    Ag = b * h
+    rho_g = As_total_long / Ag
+
+    st.sidebar.write(f"As longitudinal = {As_total_long:.2f} cm²")
+    st.sidebar.write(f"ρg = {rho_g*100:.2f}%")
 
     # wi automáticos: Espaciado uniforme entre ramas
     # X → ramas_x ramas crean (ramas_x - 1) espacios de bc/(ramas_x-1)
@@ -230,6 +269,37 @@ if st.sidebar.button("Generar curva"):
                   delta=f"{info_din['ecu'] - info_est['ecu']:+.3f}")
         m7.metric("μ", f"{info_din['mu']:.2f}",
           delta=f"{info_din['mu'] - info_est['mu']:+.2f}")
+
+    # ────────────────── Acero longitudinal ──────────────────────
+
+     st.markdown("#### Acero longitudinal")
+
+    a1, a2, a3, a4 = st.columns(4)
+
+    a1.metric("Varilla", varilla_long)
+    a2.metric("N° barras", f"{num_barras_long}")
+    a3.metric("As total (cm²)", f"{As_total_long:.2f}")
+    a4.metric("fy (kg/cm²)", f"{fy_long:.0f}")
+
+    st.info(
+        f"Área bruta Ag = {Ag:.2f} cm²  |  "
+        f"As = {As_total_long:.2f} cm²  |  "
+        f"ρg = {rho_g*100:.2f}%")   
+    st.markdown("#### Resumen de la sección")
+
+    resumen = pd.DataFrame({"Propiedad": [
+        "Área bruta Ag",
+        "Área acero As",
+        "Cuantía longitudinal ρg",
+        "fy longitudinal",
+        "Es longitudinal"], "Valor": [
+        f"{Ag:.2f} cm²",
+        f"{As_total_long:.2f} cm²",
+        f"{rho_g*100:.2f} %",
+        f"{fy_long:.0f} kg/cm²",
+        f"{Es_long:.0f} kg/cm²"]})
+
+    st.dataframe(resumen, use_container_width=True, hide_index=True)
 
     # ── Factores DIF ─────────────────────────────────────────────
     if strain_rate != 0.00001:
