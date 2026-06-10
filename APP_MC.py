@@ -1,4 +1,3 @@
-
 # ====================================================================
 #  APP — MOMENTO CURVATURA  (M – φ)
 #  Marina Fierros Marcelo — MIAE
@@ -30,7 +29,7 @@ st.sidebar.header("Parámetros del Material")
  
 fco  = st.sidebar.number_input("f'co — Resistencia del concreto (kg/cm²)",
                                 value=250.0, min_value=100.0, step=10.0)
-fyh  = st.sidebar.number_input("fyh — Fluencia acero transversal (kg/cm²)",
+fyh  = st.sidebar.number_input("fyh — Fluencia acero (kg/cm²)",
                                 value=4200.0, step=100.0)
 esm  = st.sidebar.number_input("εsm — Deformación máx. acero transversal",
                                 value=0.12, format="%.3f")
@@ -44,11 +43,10 @@ AREAS_VARILLA = {
     "#3": 0.71, "#4": 1.27, "#5": 1.99,
     "#6": 2.87, "#8": 5.07, "#10": 7.94, "#12": 11.40,}
  
-fy_long  = st.sidebar.number_input("fy longitudinal (kg/cm²)", value=4200.0, step=100.0)
 Es_long  = st.sidebar.number_input("Es longitudinal (kg/cm²)", value=2_000_000.0, step=100_000.0)
 var_long = st.sidebar.selectbox("Varilla longitudinal", list(AREAS_VARILLA.keys()), index=3)
-n_barras = st.sidebar.number_input("Número de barras longitudinales", min_value=4, value=8, step=1)
-As_barra = AREAS_VARILLA[var_long]
+n_vars = st.sidebar.number_input("Número de varillas longitudinales", min_value=4, value=8, step=1)
+As_var = AREAS_VARILLA[var_long]
 
 # ─────────────────────────────────────────────────────────────────
 #  TASA DE DEFORMACIÓN
@@ -75,7 +73,7 @@ AREAS_VARILLA_T = AREAS_VARILLA
 b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
-
+db_t= None
 
 # ────────────────────────────────────────────────────────────────────
 #                                 CIRCULAR
@@ -85,16 +83,16 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     c  = st.sidebar.number_input("Recubrimiento c (cm)", value=5.0, step=0.5)
     s  = st.sidebar.number_input("Espaciamiento s (cm)", value=8.0, step=1.0)
  
-    var_t    = st.sidebar.selectbox("Varilla transversal", list(AREAS_VARILLA_T.keys()), index=2)
-    Ash_barra = AREAS_VARILLA_T[var_t]
+    var_t    = st.sidebar.selectbox("Varilla transversal", list(AREAS_VARILLA_T.keys()), index=0)
+    Ash_var = AREAS_VARILLA_T[var_t]
  
     if tipo_col == "Circular con espiral":
-        Ash = Ash_barra
+        Ash = Ash_var
     else:
         ramas = st.sidebar.number_input("Número de ramas", value=2, min_value=1, step=1)
-        Ash   = ramas * Ash_barra
+        Ash   = ramas * Ash_var
  
-    db_t = np.sqrt(4 * Ash_barra / np.pi)
+    db_t = np.sqrt(4 * Ash_var / np.pi)
     ds   = D - 2 * c - db_t
     rho_s = (4.0 * Ash) / (ds * s)
     
@@ -140,21 +138,21 @@ else:    # Rectangular
     
     st.sidebar.caption(f"ρs = {rho_s*100:.2f}%")
  
-As_total = n_barras * As_barra
+As_total = n_vars * As_var
 rho_g    = As_total / Ag
  
 # ────────────────────────────────────────────────────────────────────
-#  SIDEBAR — CARGA AXIAL (DOS NIVELES)
+#  SIDEBAR — CARGA AXIAL (DOS)
 # ────────────────────────────────────────────────────────────────────
 st.sidebar.header("Carga axial")
  
 Pu1_frac = st.sidebar.slider("Nivel 1  —  Pu / (f'c · Ag)",
-                              min_value=0.0, max_value=0.60,
+                              min_value=0.0, max_value=0.50,
                               value=0.10, step=0.05,
                               help="0 = flexión pura")
 Pu2_frac = st.sidebar.slider("Nivel 2  —  Pu / (f'c · Ag)",
-                              min_value=0.0, max_value=0.60,
-                              value=0.30, step=0.05)
+                              min_value=0.0, max_value=0.50,
+                              value=0.15, step=0.05)
  
 Pu1 = Pu1_frac * fco * Ag   # kg
 Pu2 = Pu2_frac * fco * Ag   # kg
@@ -180,11 +178,12 @@ if calcular:
         h_sec             = h_sec,
         D                 = D,
         c                 = c,
+	db_t = db_t,
         fco               = fco,
-        fy                = fy_long,
+        fy                = fyh,
         Es                = Es_long,
-        num_barras        = int(n_barras),
-        As_barra          = As_barra,
+        num_vars        = int(n_vars),
+        As_var          = As_var,
         fyh               = fyh,
         rho_s             = rho_s,
         s                 = s,
@@ -207,8 +206,8 @@ if calcular:
             st.stop()
  
     # ── Puntos clave ─────────────────────────────────────────────────
-    pk1 = puntos_clave(phi1, M1, fco, Ec, fy_long, Es_long)
-    pk2 = puntos_clave(phi2, M2, fco, Ec, fy_long, Es_long)
+    pk1 = puntos_clave(phi1, M1, fco, Ec, fyh, Es_long)
+    pk2 = puntos_clave(phi2, M2, fco, Ec, fyh, Es_long)
  
     # ── MÉTRICAS ─────────────────────────────────────────────────────
     st.markdown("---")
@@ -297,7 +296,7 @@ if calcular:
               ncol=3, fontsize=8.5, frameon=False)
  
     titulo = (f"Curva Momento – Curvatura · {tipo_col}\n"
-              f"f'co = {fco:.0f} kg/cm²  |  fy = {fy_long:.0f} kg/cm²  |  "
+              f"f'co = {fco:.0f} kg/cm²  |  fy = {fyh:.0f} kg/cm²  |  "
               f"f'cc = {info1['fcc']:.1f} kg/cm²")
  
     ax.set_xlabel("Curvatura φ  (×10⁻⁴ rad/cm)", fontsize=10)
@@ -336,18 +335,23 @@ if calcular:
                          use_container_width=True, height=250)
  
     # ── DESCARGA ─────────────────────────────────────────────────────
-nmax = max(len(phi1), len(phi2))
-
-df_export = pd.DataFrame({
-    "phi_nivel1_rad_cm": pd.Series(phi1),
-    "M_nivel1_kgcm": pd.Series(M1),
-    "phi_nivel2_rad_cm": pd.Series(phi2),
-    "M_nivel2_kgcm": pd.Series(M2)})
+    df_export = pd.DataFrame({
+        "phi_nivel1_rad_cm": phi1,
+        "M_nivel1_kgcm":     M1,
+        "phi_nivel2_rad_cm": phi2,
+        "M_nivel2_kgcm":     M2,
+    })
  
-    st.download_button("📥  Descargar resultados (CSV)", df_export.to_csv(index=False), file_name="curva_MC.csv")
+    st.download_button(
+        "📥  Descargar resultados (CSV)",
+        df_export.to_csv(index=False),
+        file_name="curva_M_phi.csv",
+    )
  
 else:
     st.info("Configura los parámetros en el panel izquierdo y presiona **▶ Calcular M–φ**.")
  
+
+
 
 
