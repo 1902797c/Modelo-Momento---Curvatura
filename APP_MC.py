@@ -308,7 +308,7 @@ if calcular:
         # 2. Dibujar la trayectoria del estribo perimetral
         ax_sec.add_patch(plt.Rectangle((c, c), b - 2*c, h_sec - 2*c, edgecolor='red', facecolor='#DDF0FF', lw=1.5, ls='--', label='Núcleo Confinado'))
         # 3. Obtener y graficar los puntos de acero
-        x_s, y_s = obtener_coordenadas_acero_2d("rectangular", b, h_sec, c, n_vars)
+        x_s, y_s = coordenadas("rectangular", b, h_sec, c, n_vars)
         ax_sec.scatter(x_s, y_s, color='black', s=130, zorder=5, label='Varillas Long.')
         ax_sec.set_xlim(-5, b + 5)
         ax_sec.set_ylim(-5, h_sec + 5)
@@ -320,7 +320,7 @@ if calcular:
         circ_int = plt.Circle((D/2.0, D/2.0), D/2.0 - c, edgecolor='red', facecolor='#DDF0FF', lw=1.5, ls='--', label='Núcleo Confinado')
         ax_sec.add_patch(circ_ext)
         ax_sec.add_patch(circ_int)
-        x_s, y_s = obtener_coordenadas_acero_2d("circular", D, D, c, n_vars)
+        x_s, y_s = coordenadas("circular", D, D, c, n_vars)
         ax_sec.scatter(x_s, y_s, color='black', s=130, zorder=5, label='Varillas Long.')
         ax_sec.set_xlim(-5, D + 5)
         ax_sec.set_ylim(-5, D + 5)
