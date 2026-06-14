@@ -146,15 +146,12 @@ else:
     vars_en_cara_x = 2 + (vars_horizontales // 2) # Cantidad de varillas arriba/abajo
     vars_en_cara_y = 2 + (vars_verticales // 2)   # Cantidad de varillas a los lados
     
-    # 3. Cálculo automático de Ramas físicas enteras:
-    # Si hay varillas interiores, asumimos que se añade una rama (grapa o estribo interno) por cada una de ellas
+
     ramas_x_default = int(vars_en_cara_x)
     ramas_y_default = int(vars_en_cara_y)
     
-    # 4. Mostramos el control en Streamlit usando el cálculo automático como valor por defecto,
-    # pero obligamos a que sean valores enteros con "step=1"
-    ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=2, value=ramas_x_default, step=1)
-    ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=2, value=ramas_y_default, step=1)
+    ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=1.0, max_value=10.0, value=2.0, step=0.1, format="%.2f")
+    ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=1.0, max_value=10.0, value=2.0, step=0.1, format="%.2f")
 
     Asx     = ramas_x * area_t
     Asy     = ramas_y * area_t
