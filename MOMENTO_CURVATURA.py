@@ -40,57 +40,7 @@ def _curva_mander_vec(eps_vec, fco, fcc, eco, ecc, Ec):
 #  POSICIÓN DEL ACERO
 # ────────────────────────────────────────────────────────────────────
 
-def _barras_rectangular(h, c, num_vars):
-
-    if num_vars < 4:
-        num_vars = 4
-
-    b_tmp = 30.0 
-    x_min, x_max = c, b_tmp - c
-    y_min, y_max = c, h - c
-
-    # Esquinas fijas
-    esquinas = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
-    
-    restantes = num_vars - 4
-    if restantes <= 0:
-        coords = esquinas
-    else:
-        ratio = h / (b_tmp + h)
-        vars_verticales = int(np.round(restantes * ratio))
-        vars_verticales = (vars_verticales // 2) * 2  # Garantizar simetría par
-        vars_horizontales = restantes - vars_verticales
-        
-        x_coords, y_coords = [], []
-        
-        # Lados horizontales (arriba y abajo)
-        if vars_horizontales > 0:
-            n_per_lado = vars_horizontales // 2
-            xs = np.linspace(x_min, x_max, n_per_lado + 2)[1:-1]
-            for xi in xs:
-                x_coords.extend([xi, xi])
-                y_coords.extend([y_min, y_max])
-                
-        # Lados verticales (izquierda y derecha)
-        if vars_verticales > 0:
-            n_per_lado = vars_verticales // 2
-            ys = np.linspace(y_min, y_max, n_per_lado + 2)[1:-1]
-            for yi in ys:
-                x_coords.extend([x_min, x_max])
-                y_coords.extend([yi, yi])
-                
-        coords = esquinas + list(zip(x_coords, y_coords))
-        
-    coords = np.array(coords)
-    # Devolvemos solo las componentes 'y' ordenadas de menor a mayor
-    return np.sort(coords[:, 1])
-
-def coordenadas(tipo_seccion, b, h, c, num_vars):
-    """
-    Calcula las posiciones espaciales (x, y) de las varillas para graficar.
-    Para rectangular distribuye en el perímetro, para circular de forma angular.
-    """
-    if tipo_seccion == "rectangular":
+if tipo_seccion == "rectangular":
         x_min, x_max = c, b - c
         y_min, y_max = c, h - c
         esquinas = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
@@ -119,13 +69,32 @@ def coordenadas(tipo_seccion, b, h, c, num_vars):
         coords = np.array(coords)
         return coords[:, 0], coords[:, 1]
     else:
-        # Caso Circular
-        radio = b / 2.0 - c  # b actúa como Diámetro en la llamada
+        # Caso Circular (b actúa como Diámetro D)
+        radio = b / 2.0 - c  
         angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
         x = b / 2.0 + radio * np.sin(angulos)
         y = b / 2.0 - radio * np.cos(angulos)
         return x, y
 
+
+def _barras_rectangular(h, c, num_vars):
+    """
+    Extrae el vector de alturas 'y' necesario para el análisis analítico rectangular.
+    Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
+    """
+    # Usamos un ancho genérico de 30 cm solo para calcular las alturas correctas
+    _, y_acero = obtener_coordenadas_acero_2d("rectangular", 30.0, h, c, num_vars)
+    return np.sort(y_acero)
+
+
+def _barras_circular(D, c, num_vars):
+    """
+    Calcula las alturas 'y' de las barras circulares medidas desde la cima (compresión).
+    ¡Definida explícitamente para que el motor de bisección no falle!
+    """
+    radio = D / 2.0 - c
+    angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
+    return D / 2.0 - radio * np.cos(angulos)
 
 # ────────────────────────────────────────────────────────────────────
 #  RECTANGULAR  —  método α-γ  (igual que calcular_M_phi_analitico MATLAB)
