@@ -132,16 +132,9 @@ else:
 
     var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
     area_t = AREAS_VARILLA_T[var_t]
-
-    ramas_x = st.sidebar.number_input("Ramas en X", min_value=2, value=2, step=1)
-    ramas_y = st.sidebar.number_input("Ramas en Y", min_value=2, value=2, step=1)
-
+    
     Asx     = ramas_x * area_t
     Asy     = ramas_y * area_t
-
-    if tipo_col == "Rectangular con estribos":
-    # 1. El usuario define las varillas totales
-    n_vars = st.sidebar.number_input("Número de varillas longitudinales", min_value=4, value=8, step=1)
     
     # 2. Calculamos cuántas varillas quedan en las caras usando la distribución perimetral anterior
     # (Para una aproximación rápida y simétrica estándar con n_vars totales)
