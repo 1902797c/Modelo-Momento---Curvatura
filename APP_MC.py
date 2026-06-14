@@ -133,9 +133,7 @@ else:
     var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
     area_t = AREAS_VARILLA_T[var_t]
     
-    Asx     = ramas_x * area_t
-    Asy     = ramas_y * area_t
-    
+
     # 2. Calculamos cuántas varillas quedan en las caras usando la distribución perimetral anterior
     # (Para una aproximación rápida y simétrica estándar con n_vars totales)
     restantes = n_vars - 4
@@ -158,6 +156,8 @@ else:
     ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=2, value=ramas_x_default, step=1)
     ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=2, value=ramas_y_default, step=1)
 
+    Asx     = ramas_x * area_t
+    Asy     = ramas_y * area_t
     
     s_prima = st.sidebar.number_input("Espaciamiento libre s' (cm)", value=6.0)
 
