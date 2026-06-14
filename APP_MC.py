@@ -99,7 +99,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
             st.sidebar.write("- Reducir espaciamiento *s*")
             st.sidebar.write("- Usar varilla de mayor diámetro")
 
-        elif tipo_col == "Circular con estribos circulares":
+        else:
             st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Aumentar número de ramas")
             st.sidebar.write("- Usar varilla de mayor diámetro")
@@ -113,7 +113,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
             st.sidebar.write("- Aumentar espaciamiento *s*")
             st.sidebar.write("- Usar varilla de menor diámetro")
 
-        elif tipo_col == "Circular con estribos circulares":
+        else:
             st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Reducir número de ramas")
             st.sidebar.write("- Usar varilla de menor diámetro")
