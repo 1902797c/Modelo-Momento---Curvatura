@@ -320,7 +320,7 @@ if calcular:
 
     if tipo_seccion == "rectangular":
 
-        ax_sec.add_patch(plt.Rectangle((0, 0), b, h_sec, edgecolor='black', facecolor='lightblue', lw=2, label='Recubrimiento'))
+        ax_sec.add_patch(plt.Rectangle((0, 0), b, h_sec, edgecolor='black', facecolor='grey', lw=2, label='Recubrimiento'))
         # 2. Dibujar la trayectoria del estribo perimetral
         ax_sec.add_patch(plt.Rectangle((c, c), b - 2*c, h_sec - 2*c, edgecolor='grey', facecolor='lightblue', lw=1, ls='--', label='Núcleo Confinado'))
         # 3. Obtener y graficar los puntos de acero
