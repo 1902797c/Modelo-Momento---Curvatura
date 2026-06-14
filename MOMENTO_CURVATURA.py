@@ -15,10 +15,6 @@ from MODELO_MANDER import funcion_mander, Ec_concreto, eco as ECO_REF
 # ────────────────────────────────────────────────────────────────────
 
 def _curva_mander_vec(eps_vec, fco, fcc, eco, ecc, Ec):
-    """
-    Devuelve (fc_confinado, fc_no_confinado) para un vector de
-    deformaciones positivas.  Misma lógica que MATLAB del compañero.
-    """
     esp = 0.005
 
     Esec_c = fcc / ecc
@@ -45,34 +41,90 @@ def _curva_mander_vec(eps_vec, fco, fcc, eco, ecc, Ec):
 # ────────────────────────────────────────────────────────────────────
 
 def _barras_rectangular(h, c, num_vars):
-    """
-    Lechos equidistantes entre c y h-c, 2 barras por lecho.
-    Igual que MATLAB: y_lechos = linspace(dp, h-dp, num_lechos).
-    y medida desde la fibra extrema de compresión.
-    """
-    dp        = c
+
+    if num_vars < 4:
+        num_vars = 4
+
+    b_tmp = 30.0 
+    x_min, x_max = c, b_tmp - c
+    y_min, y_max = c, h - c
+
+    # Esquinas fijas
+    esquinas = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
+    
     restantes = num_vars - 4
-    n_interm  = restantes // 2
-    n_lechos  = 2 + n_interm
-    y_lechos  = np.linspace(dp, h - dp, n_lechos)
+    if restantes <= 0:
+        coords = esquinas
+    else:
+        ratio = h / (b_tmp + h)
+        vars_verticales = int(np.round(restantes * ratio))
+        vars_verticales = (vars_verticales // 2) * 2  # Garantizar simetría par
+        vars_horizontales = restantes - vars_verticales
+        
+        x_coords, y_coords = [], []
+        
+        # Lados horizontales (arriba y abajo)
+        if vars_horizontales > 0:
+            n_per_lado = vars_horizontales // 2
+            xs = np.linspace(x_min, x_max, n_per_lado + 2)[1:-1]
+            for xi in xs:
+                x_coords.extend([xi, xi])
+                y_coords.extend([y_min, y_max])
+                
+        # Lados verticales (izquierda y derecha)
+        if vars_verticales > 0:
+            n_per_lado = vars_verticales // 2
+            ys = np.linspace(y_min, y_max, n_per_lado + 2)[1:-1]
+            for yi in ys:
+                x_coords.extend([x_min, x_max])
+                y_coords.extend([yi, yi])
+                
+        coords = esquinas + list(zip(x_coords, y_coords))
+        
+    coords = np.array(coords)
+    # Devolvemos solo las componentes 'y' ordenadas de menor a mayor
+    return np.sort(coords[:, 1])
 
-    y = []
-    for yi in y_lechos:
-        y.extend([yi, yi])
-    if restantes % 2:
-        y.append(h - dp)
-    return np.array(y)
-
-
-def _barras_circular(D, c, num_vars):
+def obtener_coordenadas_acero_2d(tipo_seccion, b, h, c, num_vars):
     """
-    Barras distribuidas angularmente en el radio D/2 - c.
-    y medida desde la fibra extrema de compresión (cima).
-    Igual que MATLAB.
+    Calcula las posiciones espaciales (x, y) de las varillas para graficar.
+    Para rectangular distribuye en el perímetro, para circular de forma angular.
     """
-    radio   = D / 2.0 - c
-    angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
-    return D / 2.0 - radio * np.cos(angulos)
+    if tipo_seccion == "rectangular":
+        x_min, x_max = c, b - c
+        y_min, y_max = c, h - c
+        esquinas = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
+        restantes = num_vars - 4
+        if restantes <= 0:
+            coords = esquinas
+        else:
+            ratio = h / (b + h)
+            vars_verticales = int(np.round(restantes * ratio))
+            vars_verticales = (vars_verticales // 2) * 2
+            vars_horizontales = restantes - vars_verticales
+            x_coords, y_coords = [], []
+            if vars_horizontales > 0:
+                n_per_lado = vars_horizontales // 2
+                xs = np.linspace(x_min, x_max, n_per_lado + 2)[1:-1]
+                for xi in xs:
+                    x_coords.extend([xi, xi])
+                    y_coords.extend([y_min, y_max])
+            if vars_verticales > 0:
+                n_per_lado = vars_verticales // 2
+                ys = np.linspace(y_min, y_max, n_per_lado + 2)[1:-1]
+                for yi in ys:
+                    x_coords.extend([x_min, x_max])
+                    y_coords.extend([yi, yi])
+            coords = esquinas + list(zip(x_coords, y_coords))
+        coords = np.array(coords)
+        return coords[:, 0], coords[:, 1]
+    else:
+        # Caso Circular
+        radio = b / 2.0 - c  # b actúa como Diámetro en la llamada
+        angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
+        x = b / 2.0 + radio * np.sin(angulos)
+        y = b / 2.0 - radio * np.cos(angulos)
+        return x, y
 
 
 # ────────────────────────────────────────────────────────────────────
