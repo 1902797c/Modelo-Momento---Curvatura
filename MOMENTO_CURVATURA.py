@@ -82,7 +82,7 @@ def _barras_rectangular(h, c, num_vars):
     Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
     """
     # Usamos un ancho genérico de 30 cm solo para calcular las alturas correctas
-    _, y_acero = coordenadas("rectangular", 30.0, h, c, num_vars)
+    _, y_acero = coordenadas("rectangular", b, h, c, num_vars)
     return np.sort(y_acero)
 
 
