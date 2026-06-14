@@ -76,7 +76,7 @@ def coordenadas(tipo_seccion, b, h, c, num_vars):
         return x, y
 
 
-def _barras_rectangular(h, c, num_vars):
+def _barras_rectangular(h, b, c, num_vars):
     """
     Extrae el vector de alturas 'y' necesario para el análisis analítico rectangular.
     Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
