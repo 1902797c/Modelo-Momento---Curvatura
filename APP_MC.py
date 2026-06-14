@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from MODELO_MANDER import Ec_concreto, eco as ECO_REF
-from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave, coordenadas
+from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave
 
 st.set_page_config(page_title="Momento – Curvatura", layout="wide", initial_sidebar_state="expanded")
 
