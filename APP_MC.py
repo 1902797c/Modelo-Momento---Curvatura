@@ -333,7 +333,7 @@ if calcular:
     else:
     # Caso circular
         circ_ext = plt.Circle((D/2.0, D/2.0), D/2.0, edgecolor='black', facecolor='#E0E0E0', lw=2, label='Recubrimiento')
-        circ_int = plt.Circle((D/2.0, D/2.0), D/2.0 - c, edgecolor='grey', facecolor='lightblue', lw=1, ls='--', label='Núcleo Confinado')
+        circ_int = plt.Circle((D/2.0, D/2.0), D/2.0 - c, edgecolor='grey', facecolor='white', lw=1, ls='--', label='Núcleo Confinado')
         ax_sec.add_patch(circ_ext)
         ax_sec.add_patch(circ_int)
         x_s, y_s = coordenadas("circular", D, D, c, n_vars)
