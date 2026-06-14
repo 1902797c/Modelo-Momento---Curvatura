@@ -87,8 +87,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     rho_s = (4.0 * Ash) / (ds * s)
     Ag    = np.pi * D ** 2 / 4.0
 
-    tipo_seccion = "circular"
-    tipo_mander  = tipo_col
+
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
     if rho_s < RHO_MIN:
