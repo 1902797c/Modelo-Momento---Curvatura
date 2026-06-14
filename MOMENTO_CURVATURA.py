@@ -69,7 +69,6 @@ def coordenadas(tipo_seccion, b, h, c, num_vars):
         coords = np.array(coords)
         return coords[:, 0], coords[:, 1]
     else:
-        # Caso Circular (b actúa como Diámetro D)
         radio = b / 2.0 - c  
         angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
         x = b / 2.0 + radio * np.sin(angulos)
@@ -83,7 +82,7 @@ def _barras_rectangular(h, c, num_vars):
     Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
     """
     # Usamos un ancho genérico de 30 cm solo para calcular las alturas correctas
-    _, y_acero = obtener_coordenadas_acero_2d("rectangular", 30.0, h, c, num_vars)
+    _, y_acero = coordenadas("rectangular", 30.0, h, c, num_vars)
     return np.sort(y_acero)
 
 
