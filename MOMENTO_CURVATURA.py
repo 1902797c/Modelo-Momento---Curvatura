@@ -103,7 +103,7 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
                     Pu, fco, fcc, eco, ecc, ecu, Ec,
                     fy, Es, n_puntos):
 
-    y_acero = _barras_rectangular(h, c, num_vars)
+    y_acero = _barras_rectangular(b, h, c, num_vars)
     A_acero = np.full(len(y_acero), As_var)
     y_cent  = h / 2.0
     ecm_max = min(ecu, 0.025)
