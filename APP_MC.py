@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from MODELO_MANDER import Ec_concreto, eco as ECO_REF
-from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave
+from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave, obtener_coordenadas_acero_2d
 
 st.set_page_config(page_title="Momento – Curvatura", layout="wide", initial_sidebar_state="expanded")
 
@@ -296,6 +296,43 @@ if calcular:
     ax.set_xlim(left=0); ax.set_ylim(bottom=0); ax.grid(alpha=0.3)
     plt.tight_layout()
     st.pyplot(fig)
+
+   
+st.subheader("Esquema de la Sección Transversal y Refuerzo")
+
+fig_sec, ax_sec = plt.subplots(figsize=(4, 5))
+
+if tipo_seccion == "rectangular":
+    # 1. Dibujar el bloque exterior de concreto
+    ax_sec.add_patch(plt.Rectangle((0, 0), b, h_sec, edgecolor='black', facecolor='#E0E0E0', lw=2, label='Recubrimiento'))
+    # 2. Dibujar la trayectoria del estribo perimetral
+    ax_sec.add_patch(plt.Rectangle((c, c), b - 2*c, h_sec - 2*c, edgecolor='red', facecolor='#DDF0FF', lw=1.5, ls='--', label='Núcleo Confinado'))
+    # 3. Obtener y graficar los puntos de acero
+    x_s, y_s = obtener_coordenadas_acero_2d("rectangular", b, h_sec, c, n_vars)
+    ax_sec.scatter(x_s, y_s, color='black', s=130, zorder=5, label='Varillas Long.')
+    ax_sec.set_xlim(-5, b + 5)
+    ax_sec.set_ylim(-5, h_sec + 5)
+    ax_sec.set_xlabel("Ancho b (cm)")
+    ax_sec.set_ylabel("Peralte h (cm)")
+else:
+    # Caso circular
+    circ_ext = plt.Circle((D/2.0, D/2.0), D/2.0, edgecolor='black', facecolor='#E0E0E0', lw=2, label='Recubrimiento')
+    circ_int = plt.Circle((D/2.0, D/2.0), D/2.0 - c, edgecolor='red', facecolor='#DDF0FF', lw=1.5, ls='--', label='Núcleo Confinado')
+    ax_sec.add_patch(circ_ext)
+    ax_sec.add_patch(circ_int)
+    x_s, y_s = obtener_coordenadas_acero_2d("circular", D, D, c, n_vars)
+    ax_sec.scatter(x_s, y_s, color='black', s=130, zorder=5, label='Varillas Long.')
+    ax_sec.set_xlim(-5, D + 5)
+    ax_sec.set_ylim(-5, D + 5)
+    ax_sec.set_xlabel("X (cm)")
+    ax_sec.set_ylabel("Y (cm)")
+
+ax_sec.set_aspect('equal')
+ax_sec.grid(True, linestyle=':', alpha=0.5)
+ax_sec.invert_yaxis()  # IMPORTANTE: Hace que y=0 sea la fibra superior de compresión
+ax_sec.legend(loc='upper left', bbox_to_anchor=(1.05, 1.0))
+
+st.pyplot(fig_sec)
 
     # ── Tabla ────────────────────────────────────────────────────
     with st.expander("Ver tabla de resultados"):
