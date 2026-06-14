@@ -238,44 +238,6 @@ if calcular:
     pk1 = puntos_clave(phi1, M1, fco, Ec, fyh, Es_long)
     pk2 = puntos_clave(phi2, M2, fco, Ec, fyh, Es_long)
 
-    # ── Métricas ─────────────────────────────────────────────────
-    st.markdown("---")
-    st.markdown("### Propiedades del concreto confinado — Mander (1988)")
-    c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("f'co (kg/cm²)", f"{fco:.1f}")
-    c2.metric("f'cc (kg/cm²)", f"{info1['fcc']:.2f}", delta=f"+{info1['fcc']-fco:.2f}")
-    c3.metric("εcc", f"{info1['ecc']:.4f}", delta=f"+{info1['ecc']-eco:.4f}")
-    c4.metric("εcu", f"{info1['ecu']:.4f}")
-    c5.metric("ke",  f"{info1['ke']:.3f}")
-
-    st.markdown("### Sección transversal")
-    sc1, sc2, sc3, sc4 = st.columns(4)
-    sc1.metric("Ag (cm²)",      f"{Ag:.2f}")
-    sc2.metric("As total (cm²)", f"{As_total:.2f}")
-    sc3.metric("ρg (%)",         f"{rho_g*100:.2f}")
-    sc4.metric("ρs (%)",         f"{rho_s*100:.2f}")
-
-    # ── Ductilidad ───────────────────────────────────────────────
-    def _mu(pk):
-        if "y" in pk and "u" in pk and pk["y"][0] > 0:
-            return pk["u"][0] / pk["y"][0]
-        return float("nan")
-
-    if pk1 and pk2:
-        st.markdown("### Ductilidad de curvatura  μ = φu / φy")
-        d1, d2 = st.columns(2)
-        with d1:
-            st.markdown(f"**Nivel 1 — Pu = {Pu1_frac:.0%} f'c·Ag**")
-            a, b_, cc = st.columns(3)
-            a.metric("φy (rad/cm)",  f"{pk1['y'][0]:.2e}")
-            b_.metric("φu (rad/cm)", f"{pk1['u'][0]:.2e}")
-            cc.metric("μφ",          f"{_mu(pk1):.2f}")
-        with d2:
-            st.markdown(f"**Nivel 2 — Pu = {Pu2_frac:.0%} f'c·Ag**")
-            a2, b2, c2_ = st.columns(3)
-            a2.metric("φy (rad/cm)",  f"{pk2['y'][0]:.2e}")
-            b2.metric("φu (rad/cm)",  f"{pk2['u'][0]:.2e}")
-            c2_.metric("μφ",          f"{_mu(pk2):.2f}")
 
     # ── Gráfica ──────────────────────────────────────────────────
     st.markdown("### Curvas M – φ")
@@ -349,6 +311,44 @@ if calcular:
     ax_sec.legend(loc='upper left', bbox_to_anchor=(1.05, 1.0))
 
     st.pyplot(fig_sec)
+    # ── Métricas ─────────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("### Propiedades del concreto confinado — Mander (1988)")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("f'co (kg/cm²)", f"{fco:.1f}")
+    c2.metric("f'cc (kg/cm²)", f"{info1['fcc']:.2f}", delta=f"+{info1['fcc']-fco:.2f}")
+    c3.metric("εcc", f"{info1['ecc']:.4f}", delta=f"+{info1['ecc']-eco:.4f}")
+    c4.metric("εcu", f"{info1['ecu']:.4f}")
+    c5.metric("ke",  f"{info1['ke']:.3f}")
+
+    st.markdown("### Sección transversal")
+    sc1, sc2, sc3, sc4 = st.columns(4)
+    sc1.metric("Ag (cm²)",      f"{Ag:.2f}")
+    sc2.metric("As total (cm²)", f"{As_total:.2f}")
+    sc3.metric("ρg (%)",         f"{rho_g*100:.2f}")
+    sc4.metric("ρs (%)",         f"{rho_s*100:.2f}")
+
+    # ── Ductilidad ───────────────────────────────────────────────
+    def _mu(pk):
+        if "y" in pk and "u" in pk and pk["y"][0] > 0:
+            return pk["u"][0] / pk["y"][0]
+        return float("nan")
+
+    if pk1 and pk2:
+        st.markdown("### Ductilidad de curvatura  μ = φu / φy")
+        d1, d2 = st.columns(2)
+        with d1:
+            st.markdown(f"**Nivel 1 — Pu = {Pu1_frac:.0%} f'c·Ag**")
+            a, b_, cc = st.columns(3)
+            a.metric("φy (rad/cm)",  f"{pk1['y'][0]:.2e}")
+            b_.metric("φu (rad/cm)", f"{pk1['u'][0]:.2e}")
+            cc.metric("μφ",          f"{_mu(pk1):.2f}")
+        with d2:
+            st.markdown(f"**Nivel 2 — Pu = {Pu2_frac:.0%} f'c·Ag**")
+            a2, b2, c2_ = st.columns(3)
+            a2.metric("φy (rad/cm)",  f"{pk2['y'][0]:.2e}")
+            b2.metric("φu (rad/cm)",  f"{pk2['u'][0]:.2e}")
+            c2_.metric("μφ",          f"{_mu(pk2):.2f}")
 
     # ── Tabla ────────────────────────────────────────────────────
     with st.expander("Ver tabla de resultados"):
