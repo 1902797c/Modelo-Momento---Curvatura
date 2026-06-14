@@ -85,7 +85,7 @@ def _barras_rectangular(h, c, num_vars):
     # Devolvemos solo las componentes 'y' ordenadas de menor a mayor
     return np.sort(coords[:, 1])
 
-def obtener_coordenadas_acero_2d(tipo_seccion, b, h, c, num_vars):
+def coordenadas(tipo_seccion, b, h, c, num_vars):
     """
     Calcula las posiciones espaciales (x, y) de las varillas para graficar.
     Para rectangular distribuye en el perímetro, para circular de forma angular.
