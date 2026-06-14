@@ -39,8 +39,8 @@ def _curva_mander_vec(eps_vec, fco, fcc, eco, ecc, Ec):
 # ────────────────────────────────────────────────────────────────────
 #  POSICIÓN DEL ACERO
 # ────────────────────────────────────────────────────────────────────
-
-if tipo_seccion == "rectangular":
+def obtener_coordenadas_acero_2d(tipo_seccion, b, h, c, num_vars):
+    if tipo_seccion == "rectangular":
         x_min, x_max = c, b - c
         y_min, y_max = c, h - c
         esquinas = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
