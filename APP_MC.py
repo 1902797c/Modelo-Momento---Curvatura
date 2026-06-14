@@ -125,8 +125,8 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
 #  RECTANGULAR
 # ─────────────────────────────────────────────────────────────────
 else:
-    b     = st.sidebar.number_input("Ancho b (cm)",   value=30.0, step=5.0)
-    h_sec = st.sidebar.number_input("Peralte h (cm)", value=65.0, step=5.0)
+    b     = st.sidebar.number_input("Ancho b (cm)",   value=50.0, step=5.0)
+    h_sec = st.sidebar.number_input("Peralte h (cm)", value=50.0, step=5.0)
     c     = st.sidebar.number_input("Recubrimiento c (cm)", value=5.0, step=0.5)
     s     = st.sidebar.number_input("Espaciamiento s (cm)", value=8.0, step=1.0)
 
