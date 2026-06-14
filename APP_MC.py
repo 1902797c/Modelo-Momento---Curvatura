@@ -89,6 +89,36 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     tipo_mander  = tipo_col
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
+        if rho_s < RHO_MIN:
+        st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+
+        if tipo == "Circular con espiral":
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Reducir espaciamiento *s*")
+            st.sidebar.write("- Usar varilla de mayor diámetro")
+
+        else:
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Aumentar número de ramas")
+            st.sidebar.write("- Usar varilla de mayor diámetro")
+            st.sidebar.write("- Reducir espaciamiento *s*")
+
+    elif rho_s > RHO_MAX:
+        st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
+
+        if tipo == "Circular con espiral":
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Aumentar espaciamiento *s*")
+            st.sidebar.write("- Usar varilla de menor diámetro")
+
+        else:
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Reducir número de ramas")
+            st.sidebar.write("- Usar varilla de menor diámetro")
+            st.sidebar.write("- Aumentar espaciamiento *s*")
+
+    else:
+        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
 # ─────────────────────────────────────────────────────────────────
 #  RECTANGULAR
 # ─────────────────────────────────────────────────────────────────
