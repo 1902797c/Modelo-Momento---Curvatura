@@ -138,6 +138,34 @@ else:
 
     Asx     = ramas_x * area_t
     Asy     = ramas_y * area_t
+
+    if tipo_col == "Rectangular con estribos":
+    # 1. El usuario define las varillas totales
+    n_vars = st.sidebar.number_input("Número de varillas longitudinales", min_value=4, value=8, step=1)
+    
+    # 2. Calculamos cuántas varillas quedan en las caras usando la distribución perimetral anterior
+    # (Para una aproximación rápida y simétrica estándar con n_vars totales)
+    restantes = n_vars - 4
+    ratio = h_sec / (b + h_sec)
+    vars_verticales = int(np.round(restantes * ratio))
+    vars_verticales = (vars_verticales // 2) * 2
+    vars_horizontales = restantes - vars_verticales
+    
+    # Varillas por cara (incluyendo las esquinas)
+    vars_en_cara_x = 2 + (vars_horizontales // 2) # Cantidad de varillas arriba/abajo
+    vars_en_cara_y = 2 + (vars_verticales // 2)   # Cantidad de varillas a los lados
+    
+    # 3. Cálculo automático de Ramas físicas enteras:
+    # Si hay varillas interiores, asumimos que se añade una rama (grapa o estribo interno) por cada una de ellas
+    ramas_x_default = int(vars_en_cara_x)
+    ramas_y_default = int(vars_en_cara_y)
+    
+    # 4. Mostramos el control en Streamlit usando el cálculo automático como valor por defecto,
+    # pero obligamos a que sean valores enteros con "step=1"
+    ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=2, value=ramas_x_default, step=1)
+    ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=2, value=ramas_y_default, step=1)
+
+    
     s_prima = st.sidebar.number_input("Espaciamiento libre s' (cm)", value=6.0)
 
     bc   = b - 2.0 * c
