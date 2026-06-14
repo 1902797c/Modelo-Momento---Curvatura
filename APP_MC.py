@@ -92,16 +92,16 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
 
-    if tipo == "Circular con espiral":
-        st.sidebar.markdown("🔧 **Recomendación:**")
-        st.sidebar.write("- Reducir espaciamiento *s*")
-        st.sidebar.write("- Usar varilla de mayor diámetro")
+        if tipo == "Circular con espiral":
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Reducir espaciamiento *s*")
+            st.sidebar.write("- Usar varilla de mayor diámetro")
 
-    else:
-        st.sidebar.markdown("🔧 **Recomendación:**")
-        st.sidebar.write("- Aumentar número de ramas")
-        st.sidebar.write("- Usar varilla de mayor diámetro")
-        st.sidebar.write("- Reducir espaciamiento *s*")
+        else:
+            st.sidebar.markdown("🔧 **Recomendación:**")
+            st.sidebar.write("- Aumentar número de ramas")
+            st.sidebar.write("- Usar varilla de mayor diámetro")
+            st.sidebar.write("- Reducir espaciamiento *s*")
 
     elif rho_s > RHO_MAX:
         st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
