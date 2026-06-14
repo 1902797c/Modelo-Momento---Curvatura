@@ -108,7 +108,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     elif rho_s > RHO_MAX:
         st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
 
-        if tipo_tipo == "Circular con espiral":
+        if tipo_col == "Circular con espiral":
             st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Aumentar espaciamiento *s*")
             st.sidebar.write("- Usar varilla de menor diámetro")
@@ -303,7 +303,7 @@ if calcular:
     fig_sec, ax_sec = plt.subplots(figsize=(4, 5))
 
     if tipo_seccion == "rectangular":
-        # 1. Dibujar el bloque exterior de concreto
+
         ax_sec.add_patch(plt.Rectangle((0, 0), b, h_sec, edgecolor='black', facecolor='#E0E0E0', lw=2, label='Recubrimiento'))
         # 2. Dibujar la trayectoria del estribo perimetral
         ax_sec.add_patch(plt.Rectangle((c, c), b - 2*c, h_sec - 2*c, edgecolor='red', facecolor='#DDF0FF', lw=1.5, ls='--', label='Núcleo Confinado'))
