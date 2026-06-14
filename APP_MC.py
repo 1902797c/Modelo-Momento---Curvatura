@@ -150,8 +150,8 @@ else:
     ramas_x_default = int(vars_en_cara_x)
     ramas_y_default = int(vars_en_cara_y)
     
-    ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=1.0, max_value=10.0, value=ramas_x_default, step=0.1, format="%.2f")
-    ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=1.0, max_value=10.0, value=ramas_y_default, step=0.1, format="%.2f")
+    ramas_x = st.sidebar.number_input("Ramas en X (Cortante horizontal)", min_value=1.0, value=ramas_x_default, step=0.1, format="%.2f")
+    ramas_y = st.sidebar.number_input("Ramas en Y (Cortante vertical)", min_value=1.0, value=ramas_y_default, step=0.1, format="%.2f")
 
     Asx     = ramas_x * area_t
     Asy     = ramas_y * area_t
