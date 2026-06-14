@@ -158,22 +158,22 @@ else:
 As_total = n_vars * As_var
 rho_g    = As_total / Ag
 
-    if rho_s < RHO_MIN:
-        st.sidebar.error("⚠️ ρs < 1% (BAJO)")
-        st.sidebar.markdown("🔧 **Recomendación:**")
-        st.sidebar.write("- Aumentar número de ramas en X o Y")
-        st.sidebar.write("- Usar varilla de mayor diámetro")
-        st.sidebar.write("- Reducir espaciamiento s")
+if rho_s < RHO_MIN:
+    st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+    st.sidebar.markdown("🔧 **Recomendación:**")
+    st.sidebar.write("- Aumentar número de ramas en X o Y")
+    st.sidebar.write("- Usar varilla de mayor diámetro")
+    st.sidebar.write("- Reducir espaciamiento s")
 
-    elif rho_s > RHO_MAX:
-        st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
-        st.sidebar.markdown("🔧 **Recomendación:**")
-        st.sidebar.write("- Reducir número de ramas")
-        st.sidebar.write("- Usar varilla de menor diámetro")
-        st.sidebar.write("- Aumentar espaciamiento s")
+elif rho_s > RHO_MAX:
+    st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
+    st.sidebar.markdown("🔧 **Recomendación:**")
+    st.sidebar.write("- Reducir número de ramas")
+    st.sidebar.write("- Usar varilla de menor diámetro")
+    st.sidebar.write("- Aumentar espaciamiento s")
 
-    else:
-        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
+else:
+    st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
 # ─────────────────────────────────────────────────────────────────
 #  CARGA AXIAL
 # ─────────────────────────────────────────────────────────────────
