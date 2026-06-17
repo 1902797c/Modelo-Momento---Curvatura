@@ -67,6 +67,7 @@ tipo_mander= None
 
 RHO_MIN = 0.01
 RHO_MAX = 0.025
+
 # ─────────────────────────────────────────────────────────────────
 #  CIRCULAR
 # ─────────────────────────────────────────────────────────────────
@@ -95,14 +96,16 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
     if rho_s < RHO_MIN:
-        st.sidebar.error("⚠️ ρs < 1% (BAJO)")
-        st.sidebar.markdown("🔧 **Recomendación:**")
-        
+               
         if tipo_col == "Circular con espiral":
+            st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+            st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Reducir espaciamiento *s*")
             st.sidebar.write("- Usar varilla de mayor diámetro")
             
         elif tipo_col == "Circular con estribos circulares":
+            st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+            st.sidebar.markdown("🔧 **Recomendación:**")
             st.sidebar.write("- Aumentar número de ramas")
             st.sidebar.write("- Usar varilla de mayor diámetro")
             st.sidebar.write("- Reducir espaciamiento *s*")
@@ -131,7 +134,7 @@ else:
     c     = st.sidebar.number_input("Recubrimiento c (cm)", value=5.0, step=0.5)
     s     = st.sidebar.number_input("Espaciamiento s (cm)", value=8.0, step=1.0)
 
-    var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
+    var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=0)
     area_t = AREAS_VARILLA_T[var_t]
     
 
