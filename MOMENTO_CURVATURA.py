@@ -81,7 +81,6 @@ def _barras_rectangular(b, h, c, num_vars):
     Extrae el vector de alturas 'y' necesario para el análisis analítico rectangular.
     Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
     """
-    # Usamos un ancho genérico de 30 cm solo para calcular las alturas correctas
     _, y_acero = coordenadas("rectangular", b, h, c, num_vars)
     return np.sort(y_acero)
 
@@ -201,7 +200,7 @@ def _mc_circular(D, c, As_var, num_vars,
             else:            c_min = c_g
 
         M[i]   = (np.sum(fc_fib * A_fib   * (y_cent - y_fib)) +
-                  np.sum(fsi    * A_acero  * (y_cent - y_acero)))
+                  np.sum(fsi    * A_acero * (y_cent - y_acero)))
         Phi[i] = ecm / c_g
 
     return np.concatenate([[0.0], Phi]), np.concatenate([[0.0], M])
@@ -257,6 +256,12 @@ def calcular_momento_curvatura(
             Pu, fco, fcc, eco, ecc, ecu, Ec,
             fy, Es, n_puntos, n_capas=n_fibras)
 
+    # === RECORTE EXCLUSIVO HASTA EL PUNTO ÚLTIMO MÁXIMO ===
+    idx_u = int(np.argmax(M_arr))
+    phi_arr = phi_arr[:idx_u + 1]
+    M_arr = M_arr[:idx_u + 1]
+    # =====================================================
+
     return phi_arr, np.abs(M_arr), info_est
 
 
@@ -275,6 +280,7 @@ def puntos_clave(phi_arr, M_arr, fco, Ec, fy, Es):
     idx_agr, idx_y = 0, len(M_arr) - 1
     for i in range(1, len(K)):
         if K[i] < 0.70 * K[0]:
+            box_agr = i
             idx_agr = i
             break
     for i in range(1, len(K)):
