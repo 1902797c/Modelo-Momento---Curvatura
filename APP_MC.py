@@ -95,36 +95,29 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
 
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
-            
-    if tipo_col == "Circular con espiral":
-        if rho_s < RHO_MIN:
-            st.sidebar.error("⚠️ ρs < 1% (BAJO)")
-            st.sidebar.markdown("🔧 **Recomendación:**")
+if rho_s < RHO_MIN:
+        st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+        st.sidebar.markdown("🔧 **Recomendación:**")
+        if tipo_col == "Circular con espiral":
             st.sidebar.write("- Reducir espaciamiento *s*")
             st.sidebar.write("- Usar varilla de mayor diámetro")
-        elif rho_s > RHO_MAX:
-            st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
-            st.sidebar.markdown("🔧 **Recomendación:**")
-            st.sidebar.write("- Aumentar espaciamiento *s*")
-            st.sidebar.write("- Usar varilla de menor diámetro")
-        else:
-            st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
-            
-    elif tipo_col == "Circular con estribos circulares":
-        if rho_s < RHO_MIN:
-            st.sidebar.error("⚠️ ρs < 1% (BAJO)")
-            st.sidebar.markdown("🔧 **Recomendación:**")
+        elif tipo_col == "Circular con estribos circulares":
             st.sidebar.write("- Aumentar número de ramas")
             st.sidebar.write("- Usar varilla de mayor diámetro")
             st.sidebar.write("- Reducir espaciamiento *s*")
-        elif rho_s > RHO_MAX:
-            st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
-            st.sidebar.markdown("🔧 **Recomendación:**")
+    elif rho_s > RHO_MAX:
+        st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
+        st.sidebar.markdown("🔧 **Recomendación:**")
+        if tipo_col == "Circular con espiral":
+            st.sidebar.write("- Aumentar espaciamiento *s*")
+            st.sidebar.write("- Usar varilla de menor diámetro")
+        elif tipo_col == "Circular con estribos circulares":
             st.sidebar.write("- Reducir número de ramas")
             st.sidebar.write("- Usar varilla de menor diámetro")
             st.sidebar.write("- Aumentar espaciamiento *s*")
-        else:
-            st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
+    else:
+        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")            
+
 # ─────────────────────────────────────────────────────────────────
 #  RECTANGULAR
 # ─────────────────────────────────────────────────────────────────
