@@ -95,7 +95,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
 
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
-if rho_s < RHO_MIN:
+    if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
         st.sidebar.markdown("🔧 **Recomendación:**")
         if tipo_col == "Circular con espiral":
