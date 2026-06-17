@@ -63,6 +63,7 @@ b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
 tipo_seccion = None
+tipo_mander= None 
 
 RHO_MIN = 0.01
 RHO_MAX = 0.025
