@@ -62,6 +62,7 @@ AREAS_VARILLA_T = AREAS_VARILLA
 b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
+tipo_seccion = None
 
 RHO_MIN = 0.01
 RHO_MAX = 0.025
@@ -85,8 +86,9 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     db_t  = np.sqrt(4 * Ash_var / np.pi)
     ds    = D - 2 * c - db_t
     rho_s = (4.0 * Ash) / (ds * s)
-    Ag    = np.pi * D ** 2 / 4.0
-
+    Ag    = np.pi * D ** 2 / 4.
+    
+    tipo_seccion = "circular"
 
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
