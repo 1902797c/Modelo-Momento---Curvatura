@@ -63,11 +63,10 @@ b = h_sec = D = None
 c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
 tipo_seccion = None
-tipo_mander= None 
+tipo_mander = None
 
 RHO_MIN = 0.01
 RHO_MAX = 0.025
-
 # ─────────────────────────────────────────────────────────────────
 #  CIRCULAR
 # ─────────────────────────────────────────────────────────────────
@@ -88,7 +87,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     db_t  = np.sqrt(4 * Ash_var / np.pi)
     ds    = D - 2 * c - db_t
     rho_s = (4.0 * Ash) / (ds * s)
-    Ag    = np.pi * D ** 2 / 4.
+    Ag    = np.pi * D ** 2 / 4.0
     
     tipo_seccion = "circular"
     tipo_mander = tipo_col
@@ -98,26 +97,31 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     if rho_s < RHO_MIN:
         st.sidebar.error("⚠️ ρs < 1% (BAJO)")
         st.sidebar.markdown("🔧 **Recomendación:**")
+        
         if tipo_col == "Circular con espiral":
             st.sidebar.write("- Reducir espaciamiento *s*")
             st.sidebar.write("- Usar varilla de mayor diámetro")
+            
         elif tipo_col == "Circular con estribos circulares":
             st.sidebar.write("- Aumentar número de ramas")
             st.sidebar.write("- Usar varilla de mayor diámetro")
             st.sidebar.write("- Reducir espaciamiento *s*")
+
     elif rho_s > RHO_MAX:
         st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
         st.sidebar.markdown("🔧 **Recomendación:**")
+        
         if tipo_col == "Circular con espiral":
             st.sidebar.write("- Aumentar espaciamiento *s*")
             st.sidebar.write("- Usar varilla de menor diámetro")
+            
         elif tipo_col == "Circular con estribos circulares":
             st.sidebar.write("- Reducir número de ramas")
             st.sidebar.write("- Usar varilla de menor diámetro")
             st.sidebar.write("- Aumentar espaciamiento *s*")
-    else:
-        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")            
 
+    else:
+        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
 # ─────────────────────────────────────────────────────────────────
 #  RECTANGULAR
 # ─────────────────────────────────────────────────────────────────
@@ -127,7 +131,7 @@ else:
     c     = st.sidebar.number_input("Recubrimiento c (cm)", value=5.0, step=0.5)
     s     = st.sidebar.number_input("Espaciamiento s (cm)", value=8.0, step=1.0)
 
-    var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=0)
+    var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
     area_t = AREAS_VARILLA_T[var_t]
     
 
@@ -171,25 +175,26 @@ else:
     tipo_mander  = "Rectangular con estribos"
     st.sidebar.caption(f"ρs = {rho_s*100:.2f}%")
 
+    if rho_s < RHO_MIN:
+        st.sidebar.error("⚠️ ρs < 1% (BAJO)")
+        st.sidebar.markdown("🔧 **Recomendación:**")
+        st.sidebar.write("- Aumentar número de ramas en X o Y")
+        st.sidebar.write("- Usar varilla de mayor diámetro")
+        st.sidebar.write("- Reducir espaciamiento s")
+
+    elif rho_s > RHO_MAX:
+        st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
+        st.sidebar.markdown("🔧 **Recomendación:**")
+        st.sidebar.write("- Reducir número de ramas")
+        st.sidebar.write("- Usar varilla de menor diámetro")
+        st.sidebar.write("- Aumentar espaciamiento s")
+
+    else:
+        st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
+
 As_total = n_vars * As_var
 rho_g    = As_total / Ag
 
-if rho_s < RHO_MIN:
-    st.sidebar.error("⚠️ ρs < 1% (BAJO)")
-    st.sidebar.markdown("🔧 **Recomendación:**")
-    st.sidebar.write("- Aumentar número de ramas en X o Y")
-    st.sidebar.write("- Usar varilla de mayor diámetro")
-    st.sidebar.write("- Reducir espaciamiento s")
-
-elif rho_s > RHO_MAX:
-    st.sidebar.warning("⚠️ ρs > 2.5% (ALTO)")
-    st.sidebar.markdown("🔧 **Recomendación:**")
-    st.sidebar.write("- Reducir número de ramas")
-    st.sidebar.write("- Usar varilla de menor diámetro")
-    st.sidebar.write("- Aumentar espaciamiento s")
-
-else:
-    st.sidebar.success("✅ ρs dentro del rango (1%–2.5%)")
 # ─────────────────────────────────────────────────────────────────
 #  CARGA AXIAL
 # ─────────────────────────────────────────────────────────────────
@@ -291,7 +296,7 @@ if calcular:
     plt.tight_layout()
     st.pyplot(fig)
 
-   
+    
     st.subheader("Esquema de la Sección Transversal y Refuerzo longitudinal")
 
     fig_sec, ax_sec = plt.subplots(figsize=(4, 5))
