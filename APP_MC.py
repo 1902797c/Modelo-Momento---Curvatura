@@ -89,6 +89,7 @@ if tipo_col in ["Circular con espiral", "Circular con estribos circulares"]:
     Ag    = np.pi * D ** 2 / 4.
     
     tipo_seccion = "circular"
+    tipo_mander = tipo_col
 
     st.sidebar.caption(f"ds = {ds:.2f} cm  |  ρs = {rho_s*100:.2f}%")
 
