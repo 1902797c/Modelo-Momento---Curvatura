@@ -134,9 +134,7 @@ else:
     var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
     area_t = AREAS_VARILLA_T[var_t]
     
-
-    # 2. Calculamos cuántas varillas quedan en las caras usando la distribución perimetral anterior
-    # (Para una aproximación rápida y simétrica estándar con n_vars totales)
+    
     restantes = n_vars - 4
     ratio = h_sec / (b + h_sec)
     vars_verticales = int(np.round(restantes * ratio))
@@ -159,9 +157,14 @@ else:
     Asy     = ramas_y * area_t
     
     s_prima = st.sidebar.number_input("Espaciamiento libre s' (cm)", value=6.0)
-
-    bc   = b - 2.0 * c
-    dc   = h_sec - 2.0 * c
+    # ── CONDICIONAL para rectangular ─────────────────────
+    if spalling and ecm > 0.005:
+        bc   = b - 2.0 * c
+        dc   = h_sec - 2.0 * c
+    else:
+        b_conc = b
+        h_conc = h
+    
     ds   = min(bc, dc)
     n_x  = max(int(ramas_x) - 1, 1)
     n_y  = max(int(ramas_y) - 1, 1)
