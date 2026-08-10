@@ -77,19 +77,14 @@ def coordenadas(tipo_seccion, b, h, c, num_vars):
 
 
 def _barras_rectangular(b, h, c, num_vars):
-    """
-    Extrae el vector de alturas 'y' necesario para el análisis analítico rectangular.
-    Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
-    """
+
+
     _, y_acero = coordenadas("rectangular", b, h, c, num_vars)
     return np.sort(y_acero)
 
 
 def _barras_circular(D, c, num_vars):
-    """
-    Calcula las alturas 'y' de las barras circulares medidas desde la cima (compresión).
-    ¡Definida explícitamente para que el motor de bisección no falle!
-    """
+
     radio = D / 2.0 - c
     angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
     return D / 2.0 - radio * np.cos(angulos)
@@ -124,14 +119,8 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
             gamma = 1.0 - Mo_fc / (ecm * A_fc)
         else:
             alpha, gamma = 0.0, 0.5
-
-        # ── CONDICIONAL para rectangular ─────────────────────
-       
-        if spalling and ecm > 0.005:
-            alpha = alpha * (1.0 - 2.0 * c / b)
-        # ─────────────────────────────────────────────────────────────
-
-        # Bisección para kd  (igual que MATLAB: c_min=1e-3, c_max=h*5, tol=100)
+        
+        # Bisección para kd 
         c_min, c_max = 1e-3, h * 5.0
         for _ in range(100):
             c_g   = (c_min + c_max) / 2.0
