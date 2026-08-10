@@ -158,13 +158,9 @@ else:
     
     s_prima = st.sidebar.number_input("Espaciamiento libre s' (cm)", value=6.0)
     # ── CONDICIONAL para rectangular ─────────────────────
-    if spalling and ecm > 0.005:
-        bc   = b - 2.0 * c
-        dc   = h_sec - 2.0 * c
-    else:
-        b_conc = b
-        h_conc = h
-    
+    bc   = b - 2.0 * c
+    dc   = h - 2.0 * c
+
     ds   = min(bc, dc)
     n_x  = max(int(ramas_x) - 1, 1)
     n_y  = max(int(ramas_y) - 1, 1)
