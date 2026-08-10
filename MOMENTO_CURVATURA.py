@@ -9,7 +9,6 @@
 import numpy as np
 from MODELO_MANDER import funcion_mander, Ec_concreto, eco as ECO_REF
 
-
 # ────────────────────────────────────────────────────────────────────
 #  CURVA DE MANDER  
 # ────────────────────────────────────────────────────────────────────
@@ -34,7 +33,6 @@ def _curva_mander_vec(eps_vec, fco, fcc, eco, ecc, Ec):
             fc_u[i] = f2e * (1.0 - (e - 2.0 * eco) / (esp - 2.0 * eco))
 
     return fc_c, fc_u
-
 
 # ────────────────────────────────────────────────────────────────────
 #  POSICIÓN DEL ACERO
@@ -74,37 +72,24 @@ def coordenadas(tipo_seccion, b, h, c, num_vars):
         x = b / 2.0 + radio * np.sin(angulos)
         y = b / 2.0 - radio * np.cos(angulos)
         return x, y
-
-
+        
 def _barras_rectangular(b, h, c, num_vars):
-    """
-    Extrae el vector de alturas 'y' necesario para el análisis analítico rectangular.
-    Usa la misma distribución perimetral para que el cálculo y el gráfico coincidan.
-    """
+
     _, y_acero = coordenadas("rectangular", b, h, c, num_vars)
     return np.sort(y_acero)
 
-
 def _barras_circular(D, c, num_vars):
-    """
-    Calcula las alturas 'y' de las barras circulares medidas desde la cima (compresión).
-    ¡Definida explícitamente para que el motor de bisección no falle!
-    """
     radio = D / 2.0 - c
     angulos = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
     return D / 2.0 - radio * np.cos(angulos)
 
 # ────────────────────────────────────────────────────────────────────
-#  RECTANGULAR  —  método α-γ  (igual que calcular_M_phi_analitico MATLAB)
+#  RECTANGULAR  —  método α-γ  
 # ────────────────────────────────────────────────────────────────────
 
-# ── CAMBIO AÑADIDO: parámetro `spalling` ─────────────────────────
-# Cuando spalling=True  → recubrimiento usa curva NO confinada (cae a 0 en esp=0.005)
-# Cuando spalling=False → toda la sección usa curva confinada (comportamiento original)
-# ─────────────────────────────────────────────────────────────────
 def _mc_rectangular(b, h, c, As_var, num_vars,
                     Pu, fco, fcc, eco, ecc, ecu, Ec,
-                    fy, Es, n_puntos, spalling=False):  # ← AÑADIDO: spalling=False
+                    fy, Es, n_puntos):
 
     y_acero = _barras_rectangular(b, h, c, num_vars)
     A_acero = np.full(len(y_acero), As_var)
@@ -129,20 +114,6 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
         else:
             alpha, gamma = 0.0, 0.5
 
-        # ── CONDICIONAL spalling para rectangular ─────────────────────
-        # Con spalling: se penaliza alpha descontando el área del recubrimiento
-        # que ya no aporta (fc_u = 0 más allá de esp=0.005).
-        # El recubrimiento ocupa un ancho = b en las franjas superior e inferior
-        # (altura c) y un ancho = 2c en el núcleo (laterales).
-        # Se corrige alpha multiplicando por la fracción de área confinada activa.
-        if spalling and ecm > 0.005:
-            # Área bruta de compresión (zona sobre eje neutro, aprox. b*kd)
-            # La fracción de recubrimiento sobre el ancho es 2c/b (lados)
-            # y sobre la altura es c/kd cuando el recubrimiento entra en la zona comprimida.
-            # Aproximación conservadora: penalizar alpha por (1 - 2c/b) en la dirección del ancho.
-            alpha = alpha * (1.0 - 2.0 * c / b)
-        # ─────────────────────────────────────────────────────────────
-
         # Bisección para kd  (igual que MATLAB: c_min=1e-3, c_max=h*5, tol=100)
         c_min, c_max = 1e-3, h * 5.0
         for _ in range(100):
@@ -161,44 +132,21 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
     return np.concatenate([[0.0], Phi]), np.concatenate([[0.0], M])
 
 
-# ────────────────────────────────────────────────────────────────────
-#  CIRCULAR  —  método de fibras
-# ────────────────────────────────────────────────────────────────────
 
-# ── CAMBIO AÑADIDO: parámetro `spalling` ─────────────────────────
-# Cuando spalling=True  → fibras del recubrimiento (ancho_total − ancho_núcleo)
-#                         usan curva NO confinada (fc_u, cae a 0 en esp=0.005).
-#                         Fibras del núcleo usan curva confinada (fc_c).
-# Cuando spalling=False → toda la sección usa curva confinada (comportamiento original)
-# ─────────────────────────────────────────────────────────────────
+
 def _mc_circular(D, c, As_var, num_vars,
                  Pu, fco, fcc, eco, ecc, ecu, Ec,
-                 fy, Es, n_puntos, n_capas=100, spalling=False):  # ← AÑADIDO: spalling=False
+                 fy, Es, n_puntos, n_capas=100):
 
     # Geometría de fibras — sección circular completa
     dy    = D / n_capas
     y_fib = np.linspace(dy / 2.0, D - dy / 2.0, n_capas)
     R     = D / 2.0
-    R_nuc = R - c   # radio del núcleo confinado
 
-    A_fib     = np.zeros(n_capas)   # área total por franja
-    A_fib_nuc = np.zeros(n_capas)   # área del núcleo por franja (para spalling)
-    A_fib_rec = np.zeros(n_capas)   # área del recubrimiento por franja (para spalling)
-
+    A_fib = np.zeros(n_capas)
     for k in range(n_capas):
-        dist        = abs(R - y_fib[k])
-        ancho_total = 2.0 * np.sqrt(max(R**2 - dist**2, 0.0))
-        A_fib[k]    = ancho_total * dy
-
-        # ── AÑADIDO: geometría de núcleo para modo spalling ──────────
-        if dist < R_nuc:
-            ancho_nuc      = 2.0 * np.sqrt(max(R_nuc**2 - dist**2, 0.0))
-            A_fib_nuc[k]   = ancho_nuc * dy
-            A_fib_rec[k]   = max(ancho_total - ancho_nuc, 0.0) * dy
-        else:
-            A_fib_nuc[k]   = 0.0
-            A_fib_rec[k]   = ancho_total * dy
-        # ─────────────────────────────────────────────────────────────
+        dist       = abs(R - y_fib[k])
+        A_fib[k]   = 2.0 * np.sqrt(max(R**2 - dist**2, 0.0)) * dy
 
     # Acero
     y_acero = _barras_circular(D, c, num_vars)
@@ -221,32 +169,16 @@ def _mc_circular(D, c, As_var, num_vars,
             phi     = ecm / c_g
             eps_fib = phi * (c_g - y_fib)
 
+            # Curva confinada para toda la sección, truncada en ecu
+            fc_fib  = np.zeros(n_capas)
             idx_c   = eps_fib > 0
+            if np.any(idx_c):
+                ev            = eps_fib[idx_c]
+                fc_tmp, _     = _curva_mander_vec(ev, fco, fcc, eco, ecc, Ec)
+                fc_tmp[ev > ecu] = 0.0          # falla del núcleo
+                fc_fib[idx_c] = fc_tmp
 
-            # ── CONDICIONAL spalling ──────────────────────────────────
-            if spalling:
-                # Núcleo: curva confinada, truncada en ecu
-                fc_nuc = np.zeros(n_capas)
-                # Recubrimiento: curva NO confinada (cae a 0 en esp=0.005)
-                fc_rec = np.zeros(n_capas)
-                if np.any(idx_c):
-                    ev               = eps_fib[idx_c]
-                    fc_tmp_c, fc_tmp_u = _curva_mander_vec(ev, fco, fcc, eco, ecc, Ec)
-                    fc_tmp_c[ev > ecu] = 0.0          # falla del núcleo
-                    fc_nuc[idx_c]    = fc_tmp_c
-                    fc_rec[idx_c]    = fc_tmp_u       # no confinado (ya cae a 0 en 0.005)
-                F_conc = np.sum(fc_nuc * A_fib_nuc) + np.sum(fc_rec * A_fib_rec)
-            else:
-                # Modo original: toda la sección usa curva confinada
-                fc_fib = np.zeros(n_capas)
-                if np.any(idx_c):
-                    ev               = eps_fib[idx_c]
-                    fc_tmp, _        = _curva_mander_vec(ev, fco, fcc, eco, ecc, Ec)
-                    fc_tmp[ev > ecu] = 0.0
-                    fc_fib[idx_c]    = fc_tmp
-                F_conc = np.sum(fc_fib * A_fib)
-            # ─────────────────────────────────────────────────────────
-
+            F_conc  = np.sum(fc_fib * A_fib)
             eps_s   = phi * (c_g - y_acero)
             fsi     = np.clip(Es * eps_s, -fy, fy)
             F_acero = np.sum(fsi * A_acero)
@@ -256,14 +188,8 @@ def _mc_circular(D, c, As_var, num_vars,
             elif P_int > Pu: c_max = c_g
             else:            c_min = c_g
 
-        # Momento según modo
-        if spalling:
-            M[i] = (np.sum(fc_nuc * A_fib_nuc * (y_cent - y_fib)) +
-                    np.sum(fc_rec * A_fib_rec  * (y_cent - y_fib)) +
-                    np.sum(fsi   * A_acero     * (y_cent - y_acero)))
-        else:
-            M[i] = (np.sum(fc_fib * A_fib   * (y_cent - y_fib)) +
-                    np.sum(fsi    * A_acero  * (y_cent - y_acero)))
+        M[i]   = (np.sum(fc_fib * A_fib   * (y_cent - y_fib)) +
+                  np.sum(fsi    * A_acero * (y_cent - y_acero)))
         Phi[i] = ecm / c_g
 
     return np.concatenate([[0.0], Phi]), np.concatenate([[0.0], M])
@@ -294,7 +220,6 @@ def calcular_momento_curvatura(
         wi: np.ndarray = None, s_prima: float = None,
         n_fibras: int = 100,
         n_puntos: int = 60,
-        spalling: bool = False,  # ← AÑADIDO: pasa el modo al motor de cálculo
 ):
     """Devuelve (phi [rad/cm], M [kg·cm], info_mander)."""
     eco = ECO_REF
@@ -313,12 +238,12 @@ def calcular_momento_curvatura(
         phi_arr, M_arr = _mc_rectangular(
             b, h_sec, c, As_barra, num_barras,
             Pu, fco, fcc, eco, ecc, ecu, Ec,
-            fy, Es, n_puntos, spalling=spalling)  # ← AÑADIDO
+            fy, Es, n_puntos)
     else:
         phi_arr, M_arr = _mc_circular(
             D, c, As_barra, num_barras,
             Pu, fco, fcc, eco, ecc, ecu, Ec,
-            fy, Es, n_puntos, n_capas=n_fibras, spalling=spalling)  # ← AÑADIDO
+            fy, Es, n_puntos, n_capas=n_fibras)
 
     # === RECORTE EXCLUSIVO HASTA EL PUNTO ÚLTIMO MÁXIMO ===
     idx_u = int(np.argmax(M_arr))
@@ -357,3 +282,5 @@ def puntos_clave(phi_arr, M_arr, fco, Ec, fy, Es):
         "agr": (phi_arr[idx_agr], M_arr[idx_agr]),
         "y":   (phi_arr[idx_y],   M_arr[idx_y]),
         "u":   (phi_arr[idx_u],   M_arr[idx_u])}
+
+    
