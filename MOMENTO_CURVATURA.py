@@ -105,9 +105,19 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
 
     Phi = np.zeros(n_puntos)
     M   = np.zeros(n_puntos)
-
+                        
     for i, ecm in enumerate(ecm_vec):
-
+        if spalling and ecm > 0.005:
+            bc = b - 2.0 * c
+            dc = h - 2.0 * c
+            if bc <= 0 or dc <= 0:
+                raise ValueError("Dimensiones del núcleo inválidas.")
+            ancho = bc
+            # Área efectiva aproximada del núcleo
+            b_efectivo = bc
+        else:
+            b_efectivo = b
+            
         # α y γ por integración numérica de la curva de Mander
         eps_i  = np.linspace(0.0, ecm, 200)
         fc_i, _ = _curva_mander_vec(eps_i, fco, fcc, eco, ecc, Ec)
@@ -124,7 +134,7 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
         c_min, c_max = 1e-3, h * 5.0
         for _ in range(100):
             c_g   = (c_min + c_max) / 2.0
-            Cc    = alpha * fcc * b * c_g
+            Cc    = alpha * fcc * b_efectivo * c_g
             eps_s = ecm * (c_g - y_acero) / c_g
             fsi   = np.clip(Es * eps_s, -fy, fy)
             P_int = Cc + np.sum(fsi * A_acero)
@@ -143,7 +153,7 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
 # ────────────────────────────────────────────────────────────────────
 def _mc_circular(D, c, As_var, num_vars,
                  Pu, fco, fcc, eco, ecc, ecu, Ec,
-                 fy, Es, n_puntos, n_capas=100, spalling=False):  # ← AÑADIDO: spalling=False
+                 fy, Es, n_puntos, n_capas=100, spalling=True):  # ← AÑADIDO: spalling=False
 
     # Geometría de fibras — sección circular completa
     dy    = D / n_capas
@@ -158,17 +168,20 @@ def _mc_circular(D, c, As_var, num_vars,
     for k in range(n_capas):
         dist        = abs(R - y_fib[k])
         ancho_total = 2.0 * np.sqrt(max(R**2 - dist**2, 0.0))
-        A_fib[k]    = ancho_total * dy
-
-        # ── AÑADIDO: geometría de núcleo para modo spalling ──────────
-        if dist < R_nuc:
-            ancho_nuc      = 2.0 * np.sqrt(max(R_nuc**2 - dist**2, 0.0))
-            A_fib_nuc[k]   = ancho_nuc * dy
-            A_fib_rec[k]   = max(ancho_total - ancho_nuc, 0.0) * dy
+        
+        if spalling:
+            arg_conf = (R_conf ** 2 - (R - y) ** 2)
+            if arg_conf > 0:
+                ancho_conf = (2.0 * np.sqrt(arg_conf))
+                A_conf[k] = (ancho_conf * dy)
+                A_noconf[k] = (ancho_total - ancho_conf) * dy
+            else:
+                A_conf[k] = 0.0
+                A_noconf[k] = (ancho_total * dy)
         else:
-            A_fib_nuc[k]   = 0.0
-            A_fib_rec[k]   = ancho_total * dy
-        # ─────────────────────────────────────────────────────────────
+            # Todo el recubrimiento
+            A_conf[k] = 0.0
+            A_noconf[k] = (ancho_total * dy)
 
     # Acero
     y_acero = _barras_circular(D, c, num_vars)
@@ -193,55 +206,103 @@ def _mc_circular(D, c, As_var, num_vars,
 
             idx_c   = eps_fib > 0
 
-            # ── CONDICIONAL spalling ──────────────────────────────────
-            if spalling:
-               
-                fc_nuc = np.zeros(n_capas)
-                fc_rec = np.zeros(n_capas)
-                if np.any(idx_c):
-                    ev               = eps_fib[idx_c]
-                    fc_tmp_c, fc_tmp_u = _curva_mander_vec(ev, fco, fcc, eco, ecc, Ec)
-                    fc_tmp_c[ev > ecu] = 0.0          # falla del núcleo
-                    fc_nuc[idx_c]    = fc_tmp_c
-                    fc_rec[idx_c]    = fc_tmp_u       # no confinado (ya cae a 0 en 0.005)
-                F_conc = np.sum(fc_nuc * A_fib_nuc) + np.sum(fc_rec * A_fib_rec)
-            else:
-                # Modo original: toda la sección usa curva confinada
-                fc_fib = np.zeros(n_capas)
-                if np.any(idx_c):
-                    ev               = eps_fib[idx_c]
-                    fc_tmp, _        = _curva_mander_vec(ev, fco, fcc, eco, ecc, Ec)
-                    fc_tmp[ev > ecu] = 0.0
-                    fc_fib[idx_c]    = fc_tmp
-                F_conc = np.sum(fc_fib * A_fib)
-            # ─────────────────────────────────────────────────────────
+            fc_c_fib[:] = 0.0
+            fc_u_fib[:] = 0.0
 
-            eps_s   = phi * (c_g - y_acero)
-            fsi     = np.clip(Es * eps_s, -fy, fy)
+            if np.any(idx_c):
+
+                ev = eps_fib[idx_c]
+                fc_c_tmp, fc_u_tmp = (_curva_mander_vec(ev,fco,fcc,eco,ecc,Ec))
+                
+                # ---------------------------------------------------
+                # SPALLING
+                # ---------------------------------------------------
+
+                if spalling:
+
+                    if ecm > 0.005:
+                        fc_c_fib[idx_c] = fc_c_tmp
+                        fc_u_fib[idx_c] = 0.0
+                    else:
+                        fc_c_fib[idx_c] = fc_c_tmp
+                        fc_u_fib[idx_c] = fc_u_tmp
+                else:
+                    fc_c_fib[idx_c] = fc_c_tmp
+                    fc_u_fib[idx_c] = fc_u_tmp
+
+            # -------------------------------------------------------
+            # FUERZA DEL CONCRETO
+            # -------------------------------------------------------
+
+            F_conc = (np.sum(fc_c_fib * A_conf)+ np.sum(fc_u_fib * A_noconf))
+
+            # -------------------------------------------------------
+            # ACERO
+            # -------------------------------------------------------
+
+            eps_s = (phi * (c_g - y_acero))
+            fsi = np.clip(Es * eps_s, -fy, fy)
             F_acero = np.sum(fsi * A_acero)
 
-            P_int = F_conc + F_acero
-            if abs(P_int - Pu) < 100.0: break
-            elif P_int > Pu: c_max = c_g
-            else:            c_min = c_g
+            # -------------------------------------------------------
+            # EQUILIBRIO
+            # -------------------------------------------------------
+            P_int = (F_conc + F_acero)
+            error = (P_int - Pu)
 
-        # Momento según modo
-        if spalling:
-            M[i] = (np.sum(fc_nuc * A_fib_nuc * (y_cent - y_fib)) +
-                    np.sum(fc_rec * A_fib_rec  * (y_cent - y_fib)) +
-                    np.sum(fsi   * A_acero     * (y_cent - y_acero)))
-        else:
-            M[i] = (np.sum(fc_fib * A_fib   * (y_cent - y_fib)) +
-                    np.sum(fsi    * A_acero  * (y_cent - y_acero)))
-        Phi[i] = ecm / c_g
+            if (abs(error) < 5.0 or (c_max - c_min) < 1e-6):
+                break
+            if error > 0:
+                c_max = c_g
+            else:
+                c_min = c_g
+            c_g = (c_min + c_max) / 2.0
 
-    return np.concatenate([[0.0], Phi]), np.concatenate([[0.0], M])
+        # -----------------------------------------------------------
+        # MOMENTO DEL CONCRETO
+        # -----------------------------------------------------------
 
+        M_conc = (p.sum(fc_c_fib * A_conf * (y_cent - y_fib)) + np.sum(fc_u_fib * A_noconf * (y_cent - y_fib)))
+
+        # -----------------------------------------------------------
+        # MOMENTO DEL ACERO
+        # -----------------------------------------------------------
+
+        M_ace = np.sum(
+            fsi
+            * A_acero
+            * (
+                y_cent
+                - y_acero
+            )
+        )
+
+        M_vec[i] = (
+            M_conc
+            + M_ace
+        )
+
+        Phi_vec[i] = (
+            ecm / c_g
+        )
+
+    # ---------------------------------------------------------------
+    # ORIGEN
+    # ---------------------------------------------------------------
+
+    Phi_vec = np.concatenate(
+        [[0.0], Phi_vec]
+    )
+
+    M_vec = np.concatenate(
+        [[0.0], M_vec]
+    )
+
+    return Phi_vec, M_vec
 
 # ────────────────────────────────────────────────────────────────────
 #  FUNCIÓN PRINCIPAL  —  interfaz hacia APP_MC.py
 # ────────────────────────────────────────────────────────────────────
-
 def calcular_momento_curvatura(
         tipo_seccion: str,
         b: float = None, h_sec: float = None,
