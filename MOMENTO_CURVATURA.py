@@ -259,8 +259,8 @@ def calcular_momento_curvatura(
         n_fibras: int = 100,
         n_puntos: int = 60,
         spalling: bool = False,      # AÑADIDO: activa el modo "Con pérdida de recubrimiento"
-        db_t: float = None,          # AÑADIDO: diámetro de varilla transversal (caso circular)
-):
+        db_t: float = None):          # AÑADIDO: diámetro de varilla transversal (caso circular)
+
     """Devuelve (phi [rad/cm], M [kg·cm], info_mander)."""
     eco = ECO_REF
     Ec  = Ec_concreto(fco)
