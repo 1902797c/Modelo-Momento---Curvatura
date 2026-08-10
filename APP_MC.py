@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from MODELO_MANDER import Ec_concreto, eco as ECO_REF
-from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave, coordenadas
+from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave,coordenadas
 
 st.set_page_config(page_title="Momento – Curvatura", layout="wide", initial_sidebar_state="expanded")
 
@@ -64,6 +64,7 @@ c = rho_s = s = ds = None
 Asx = Asy = wi = s_prima = None
 tipo_seccion = None
 tipo_mander = None
+db_t = None  # AÑADIDO: inicialización para evitar error al usarlo en kwargs_comunes (caso rectangular)
 
 RHO_MIN = 0.01
 RHO_MAX = 0.025
@@ -134,7 +135,9 @@ else:
     var_t  = st.sidebar.selectbox("Varilla transversal (estribo)", list(AREAS_VARILLA_T.keys()), index=2)
     area_t = AREAS_VARILLA_T[var_t]
     
-    
+
+    # 2. Calculamos cuántas varillas quedan en las caras usando la distribución perimetral anterior
+    # (Para una aproximación rápida y simétrica estándar con n_vars totales)
     restantes = n_vars - 4
     ratio = h_sec / (b + h_sec)
     vars_verticales = int(np.round(restantes * ratio))
@@ -157,10 +160,9 @@ else:
     Asy     = ramas_y * area_t
     
     s_prima = st.sidebar.number_input("Espaciamiento libre s' (cm)", value=6.0)
-    # ── CONDICIONAL para rectangular ─────────────────────
-    bc   = b - 2.0 * c
-    dc   = h - 2.0 * c
 
+    bc   = b - 2.0 * c
+    dc   = h_sec - 2.0 * c
     ds   = min(bc, dc)
     n_x  = max(int(ramas_x) - 1, 1)
     n_y  = max(int(ramas_y) - 1, 1)
@@ -195,6 +197,16 @@ As_total = n_vars * As_var
 rho_g    = As_total / Ag
 
 # ─────────────────────────────────────────────────────────────────
+#  AÑADIDO: MODO DE ANÁLISIS POST-AGRIETAMIENTO (pérdida de recubrimiento)
+# ─────────────────────────────────────────────────────────────────
+st.sidebar.header("Análisis post-agrietamiento")
+modo_recubrimiento = st.sidebar.radio(
+    "Comportamiento de la sección después del agrietamiento",
+    ["Sin pérdida de recubrimiento", "Con pérdida de recubrimiento"],
+    index=0)
+spalling_activo = modo_recubrimiento == "Con pérdida de recubrimiento"
+
+# ─────────────────────────────────────────────────────────────────
 #  CARGA AXIAL
 # ─────────────────────────────────────────────────────────────────
 st.sidebar.header("Carga axial")
@@ -207,20 +219,6 @@ Pu2_frac = st.sidebar.slider("Nivel 2  —  Pu / (f'c · Ag)",
 Pu1 = Pu1_frac * fco * Ag
 Pu2 = Pu2_frac * fco * Ag
 st.sidebar.write(f"Pu₁ = {Pu1:,.0f} kg  |  Pu₂ = {Pu2:,.0f} kg")
-
-
-st.sidebar.header("Modelo de recubrimiento")
-modo_recubrimiento = st.sidebar.radio(
-    "Comportamiento post-agrietamiento",
-    options=["Sin pérdida de recubrimiento", "Con pérdida de recubrimiento"],
-    index=0,
-    help=(
-        "Sin pérdida: sección bruta completa trabaja en compresión (comportamiento original).\n"
-        "Con pérdida: el recubrimiento deja de aportar una vez supera su deformación última (ε=0.005)."
-    ),
-)
-spalling = (modo_recubrimiento == "Con pérdida de recubrimiento")
-# ─────────────────────────────────────────────────────────────────
 
 # ─────────────────────────────────────────────────────────────────
 #  BOTÓN
@@ -259,7 +257,8 @@ if calcular:
         s_prima            = s_prima,
         n_fibras           = 100,
         n_puntos           = 60,
-        spalling           = spalling,  # ← AÑADIDO: conecta el radio button al cálculo
+        spalling           = spalling_activo,  # AÑADIDO: conecta el radio button al cálculo
+        db_t               = db_t,             # AÑADIDO: requerido por el caso circular con spalling
     )
 
     with st.spinner("Calculando curvas…"):
@@ -300,11 +299,9 @@ if calcular:
     ax.legend(handles=handles + extra, loc="upper center",
               bbox_to_anchor=(0.5, -0.14), ncol=3, fontsize=8.5, frameon=False)
 
-    # Indicar el modo activo en el título
-    modo_tag = " | 🧱 Con pérdida de recubrimiento" if spalling else ""
     ax.set_title(
         f"Curva Momento – Curvatura · {tipo_col}\n"
-        f"f'co = {fco:.0f} kg/cm²  |  fy = {fyh:.0f} kg/cm²  |  f'cc = {info1['fcc']:.1f} kg/cm²{modo_tag}",
+        f"f'co = {fco:.0f} kg/cm²  |  fy = {fyh:.0f} kg/cm²  |  f'cc = {info1['fcc']:.1f} kg/cm²",
         fontsize=9.5)
     ax.set_xlabel("Curvatura φ  (×10⁻⁴ rad/cm)", fontsize=10)
     ax.set_ylabel("Momento M  (×10⁵ kg·cm)", fontsize=10)
@@ -415,3 +412,5 @@ if calcular:
 
 else:
     st.info("Configura los parámetros en el panel izquierdo y presiona **▶ Calcular M–φ**.")
+
+
