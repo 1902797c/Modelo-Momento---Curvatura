@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from MODELO_MANDER import Ec_concreto, eco as ECO_REF
-from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave, coordenadas
+from MOMENTO_CURVATURA import calcular_momento_curvatura, puntos_clave,coordenadas
 
 st.set_page_config(page_title="Momento – Curvatura", layout="wide", initial_sidebar_state="expanded")
 
@@ -209,22 +209,6 @@ Pu1 = Pu1_frac * fco * Ag
 Pu2 = Pu2_frac * fco * Ag
 st.sidebar.write(f"Pu₁ = {Pu1:,.0f} kg  |  Pu₂ = {Pu2:,.0f} kg")
 
-# ── CAMBIO AÑADIDO: radio button para pérdida de recubrimiento ───
-# Ubicación: sidebar, antes del botón Calcular.
-# Conecta con el parámetro `spalling` de calcular_momento_curvatura.
-st.sidebar.header("Modelo de recubrimiento")
-modo_recubrimiento = st.sidebar.radio(
-    "Comportamiento post-agrietamiento",
-    options=["Sin pérdida de recubrimiento", "Con pérdida de recubrimiento"],
-    index=0,
-    help=(
-        "Sin pérdida: sección bruta completa trabaja en compresión (comportamiento original).\n"
-        "Con pérdida: el recubrimiento deja de aportar una vez supera su deformación última (ε=0.005)."
-    ),
-)
-spalling = (modo_recubrimiento == "Con pérdida de recubrimiento")
-# ─────────────────────────────────────────────────────────────────
-
 # ─────────────────────────────────────────────────────────────────
 #  BOTÓN
 # ─────────────────────────────────────────────────────────────────
@@ -262,7 +246,6 @@ if calcular:
         s_prima            = s_prima,
         n_fibras           = 100,
         n_puntos           = 60,
-        spalling           = spalling,  # ← AÑADIDO: conecta el radio button al cálculo
     )
 
     with st.spinner("Calculando curvas…"):
@@ -303,11 +286,9 @@ if calcular:
     ax.legend(handles=handles + extra, loc="upper center",
               bbox_to_anchor=(0.5, -0.14), ncol=3, fontsize=8.5, frameon=False)
 
-    # Indicar el modo activo en el título
-    modo_tag = " | 🧱 Con pérdida de recubrimiento" if spalling else ""
     ax.set_title(
         f"Curva Momento – Curvatura · {tipo_col}\n"
-        f"f'co = {fco:.0f} kg/cm²  |  fy = {fyh:.0f} kg/cm²  |  f'cc = {info1['fcc']:.1f} kg/cm²{modo_tag}",
+        f"f'co = {fco:.0f} kg/cm²  |  fy = {fyh:.0f} kg/cm²  |  f'cc = {info1['fcc']:.1f} kg/cm²",
         fontsize=9.5)
     ax.set_xlabel("Curvatura φ  (×10⁻⁴ rad/cm)", fontsize=10)
     ax.set_ylabel("Momento M  (×10⁵ kg·cm)", fontsize=10)
@@ -418,4 +399,8 @@ if calcular:
 
 else:
     st.info("Configura los parámetros en el panel izquierdo y presiona **▶ Calcular M–φ**.")
+
+
+
+
 
