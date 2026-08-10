@@ -95,13 +95,9 @@ def _barras_circular(D, c, num_vars):
     return D / 2.0 - radio * np.cos(angulos)
 
 # ────────────────────────────────────────────────────────────────────
-#  RECTANGULAR  —  método α-γ  (igual que calcular_M_phi_analitico MATLAB)
+#  RECTANGULAR  —  método α-γ  
 # ────────────────────────────────────────────────────────────────────
 
-# ── CAMBIO AÑADIDO: parámetro `spalling` ─────────────────────────
-# Cuando spalling=True  → recubrimiento usa curva NO confinada (cae a 0 en esp=0.005)
-# Cuando spalling=False → toda la sección usa curva confinada (comportamiento original)
-# ─────────────────────────────────────────────────────────────────
 def _mc_rectangular(b, h, c, As_var, num_vars,
                     Pu, fco, fcc, eco, ecc, ecu, Ec,
                     fy, Es, n_puntos, spalling=False):  # ← AÑADIDO: spalling=False
@@ -129,17 +125,9 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
         else:
             alpha, gamma = 0.0, 0.5
 
-        # ── CONDICIONAL spalling para rectangular ─────────────────────
-        # Con spalling: se penaliza alpha descontando el área del recubrimiento
-        # que ya no aporta (fc_u = 0 más allá de esp=0.005).
-        # El recubrimiento ocupa un ancho = b en las franjas superior e inferior
-        # (altura c) y un ancho = 2c en el núcleo (laterales).
-        # Se corrige alpha multiplicando por la fracción de área confinada activa.
+        # ── CONDICIONAL para rectangular ─────────────────────
+       
         if spalling and ecm > 0.005:
-            # Área bruta de compresión (zona sobre eje neutro, aprox. b*kd)
-            # La fracción de recubrimiento sobre el ancho es 2c/b (lados)
-            # y sobre la altura es c/kd cuando el recubrimiento entra en la zona comprimida.
-            # Aproximación conservadora: penalizar alpha por (1 - 2c/b) en la dirección del ancho.
             alpha = alpha * (1.0 - 2.0 * c / b)
         # ─────────────────────────────────────────────────────────────
 
@@ -164,13 +152,6 @@ def _mc_rectangular(b, h, c, As_var, num_vars,
 # ────────────────────────────────────────────────────────────────────
 #  CIRCULAR  —  método de fibras
 # ────────────────────────────────────────────────────────────────────
-
-# ── CAMBIO AÑADIDO: parámetro `spalling` ─────────────────────────
-# Cuando spalling=True  → fibras del recubrimiento (ancho_total − ancho_núcleo)
-#                         usan curva NO confinada (fc_u, cae a 0 en esp=0.005).
-#                         Fibras del núcleo usan curva confinada (fc_c).
-# Cuando spalling=False → toda la sección usa curva confinada (comportamiento original)
-# ─────────────────────────────────────────────────────────────────
 def _mc_circular(D, c, As_var, num_vars,
                  Pu, fco, fcc, eco, ecc, ecu, Ec,
                  fy, Es, n_puntos, n_capas=100, spalling=False):  # ← AÑADIDO: spalling=False
@@ -225,9 +206,8 @@ def _mc_circular(D, c, As_var, num_vars,
 
             # ── CONDICIONAL spalling ──────────────────────────────────
             if spalling:
-                # Núcleo: curva confinada, truncada en ecu
+               
                 fc_nuc = np.zeros(n_capas)
-                # Recubrimiento: curva NO confinada (cae a 0 en esp=0.005)
                 fc_rec = np.zeros(n_capas)
                 if np.any(idx_c):
                     ev               = eps_fib[idx_c]
